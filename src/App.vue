@@ -1,21 +1,18 @@
 <template>
-  <NavComponent></NavComponent>
-  <HeaderComponent></HeaderComponent>
-  <MainComponent></MainComponent>
-  <FooterComponent></FooterComponent>
+  <NavBarComponent></NavBarComponent>
+  <HeroComponent></HeroComponent>
 </template>
 <script>
-import NavComponent from "@/components/NavComponent.vue";
-import HeaderComponent from "@/components/HeaderComponent.vue";
-import MainComponent from "@/components/MainComponent.vue";
-import FooterComponent from "@/components/FooterComponent.vue";
+import NavBarComponent from "@/components/NavBarComponent.vue";
+import HeroComponent from "@/components/HeroComponent.vue";
 export default {
   name: "App",
   components: {
-    NavComponent,
-    HeaderComponent,
-    MainComponent,
-    FooterComponent
+    NavBarComponent,
+    HeroComponent
+  },
+  mounted() {
+    this.$el.parentNode.classList.add("has-navbar-fixed-top");
   }
 };
 </script>
