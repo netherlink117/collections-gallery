@@ -19,7 +19,7 @@ export default {
       // so, this must be changed later for production
       .get("http://collections/")
       .then((response) => {
-        this.$store.commit("setDirectories", response.data);
+        this.$store.commit("setPaths", response.data);
       })
       .catch((error) => console.log(error));
   }

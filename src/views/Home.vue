@@ -1,13 +1,12 @@
 <template>
   <div>
     <div class="columns is-multiline">
-      <div
-        class="column"
-        v-for="directory of directories"
-        v-bind:key="directory"
-      >
-        <div class="button is-link">
-          {{ directory.name }}
+      <div class="column" v-for="path of paths" v-bind:key="path">
+        <div v-if="path.type === 'directory'" class="button is-link">
+          {{ path.name }}
+        </div>
+        <div v-else>
+          {{ path.name }}
         </div>
       </div>
     </div>
@@ -17,8 +16,11 @@
 export default {
   name: "Home",
   computed: {
-    directories() {
-      return this.$store.state.directories;
+    paths() {
+      return this.$store.state.paths;
+    },
+    directory() {
+      return this.$store.state.directory;
     }
   }
 };

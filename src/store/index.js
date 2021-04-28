@@ -2,13 +2,13 @@ import { createStore } from "vuex";
 
 export default createStore({
   state: {
-    directories: [],
+    paths: [],
     directory: null,
     file: null
   },
   mutations: {
-    setDirectories(state, payload) {
-      state.directories = payload;
+    setPaths(state, payload) {
+      state.paths = payload;
     },
     setDirectory(state, payload) {
       state.directory = payload;
