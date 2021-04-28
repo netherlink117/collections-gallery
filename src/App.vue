@@ -13,6 +13,12 @@ export default {
   },
   mounted() {
     this.$el.parentNode.classList.add("has-navbar-fixed-top");
+    this.$axios
+      .get("http://collections/")
+      .then((response) => {
+        this.$store.commit("setDirectories", response.data);
+      })
+      .catch((error) => console.log(error));
   }
 };
 </script>
