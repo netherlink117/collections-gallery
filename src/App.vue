@@ -1,15 +1,15 @@
 <template>
-  <NavBarComponent></NavBarComponent>
-  <HeroComponent></HeroComponent>
+  <nav-bar></nav-bar>
+  <hero></hero>
 </template>
 <script>
-import NavBarComponent from "@/components/NavBarComponent.vue";
-import HeroComponent from "@/components/HeroComponent.vue";
+import Hero from "./components/Hero.vue";
+import NavBar from "./components/NavBar.vue";
 export default {
   name: "App",
   components: {
-    NavBarComponent,
-    HeroComponent
+    NavBar,
+    Hero
   },
   mounted() {
     this.$el.parentNode.classList.add("has-navbar-fixed-top");
