@@ -1,10 +1,14 @@
 <template>
   <div class="hero-body">
-    <router-view class="container is-fullhd"></router-view>
+    <container></container>
   </div>
 </template>
 <script>
+import Container from "./Container.vue";
 export default {
+  components: {
+    Container
+  },
   name: "HeroBody"
 };
 </script>
