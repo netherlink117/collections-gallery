@@ -19,7 +19,13 @@ export default {
       // so, this must be changed later for production
       .get("http://collections/")
       .then((response) => {
-        this.$store.commit("setPaths", response.data);
+        let tree = {
+          name: "root",
+          type: "directory",
+          content: response.data
+        };
+        this.$store.commit("setTree", tree);
+        this.$store.commit("breadcrumbsPush", tree);
       })
       .catch((error) => console.log(error));
   }
