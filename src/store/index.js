@@ -2,19 +2,41 @@ import { createStore } from "vuex";
 
 export default createStore({
   state: {
-    paths: [],
-    directory: null,
-    file: null
+    view: "grid",
+    order: "asc",
+    directories: true,
+    files: true,
+    tree: {
+      name: "",
+      type: "",
+      content: []
+    },
+    breadcrumbs: []
   },
   mutations: {
-    setPaths(state, payload) {
-      state.paths = payload;
+    setView(state, payload) {
+      state.view = payload;
     },
-    setDirectory(state, payload) {
-      state.directory = payload;
+    setOrder(state, payload) {
+      state.order = payload;
     },
-    setFile(state, payload) {
-      state.directory = payload;
+    setDirectories(state, payload) {
+      state.directories = payload;
+    },
+    setFiles(state, payload) {
+      state.files = payload;
+    },
+    setTree(state, payload) {
+      state.tree = payload;
+    },
+    setBreadcrumbs(state, payload) {
+      state.breadcrumbs = payload;
+    },
+    breadcrumbsPush(state, payload) {
+      state.breadcrumbs.push(payload);
+    },
+    breadcrumbsPop(state) {
+      state.breadcrumbs.pop();
     }
   },
   actions: {},
