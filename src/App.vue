@@ -22,7 +22,8 @@ export default {
         let tree = {
           name: "root",
           type: "directory",
-          content: response.data
+          content: response.data,
+          size: 0
         };
         this.$store.commit("setTree", tree);
         this.$store.commit("breadcrumbsPush", tree);
