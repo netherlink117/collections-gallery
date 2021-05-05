@@ -4,12 +4,14 @@ export default createStore({
   state: {
     view: "grid",
     order: "asc",
+    separate: true,
     directories: true,
     files: true,
     tree: {
       name: "",
       type: "",
-      content: []
+      content: [],
+      size: 0
     },
     breadcrumbs: []
   },
