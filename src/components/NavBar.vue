@@ -3,7 +3,11 @@
     <div class="navbar-brand">
       <div class="navbar-item">
         <button
-          class="button"
+          v-bind:class="[
+            'button is-shadowless is-borderless',
+            { 'is-invisible': isBackDisabled }
+          ]"
+          style="border: 0; background: transparent"
           v-on:click="navigateBack()"
           :disabled="isBackDisabled"
         >
