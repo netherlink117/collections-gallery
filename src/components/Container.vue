@@ -1,5 +1,7 @@
 <template>
-  <router-view class="container is-fullhd"></router-view>
+  <div class="container is-fullhd">
+    <router-view></router-view>
+  </div>
 </template>
 <script>
 export default {
