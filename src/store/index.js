@@ -7,13 +7,8 @@ export default createStore({
     separate: true,
     directories: true,
     files: true,
-    tree: {
-      name: "",
-      type: "",
-      content: [],
-      size: 0
-    },
-    breadcrumbs: []
+    collections: null,
+    history: []
   },
   mutations: {
     setView(state, payload) {
@@ -28,17 +23,17 @@ export default createStore({
     setFiles(state, payload) {
       state.files = payload;
     },
-    setTree(state, payload) {
-      state.tree = payload;
+    setCollections(state, payload) {
+      state.collections = payload;
     },
-    setBreadcrumbs(state, payload) {
-      state.breadcrumbs = payload;
+    setHistory(state, payload) {
+      state.history = payload;
     },
-    breadcrumbsPush(state, payload) {
-      state.breadcrumbs.push(payload);
+    historyPush(state, payload) {
+      state.history.push(payload);
     },
-    breadcrumbsPop(state) {
-      state.breadcrumbs.pop();
+    historyPop(state) {
+      state.history.pop();
     }
   },
   actions: {},

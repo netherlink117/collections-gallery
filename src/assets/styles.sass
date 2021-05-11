@@ -6,3 +6,12 @@ $fa-font-path: '~@fortawesome/fontawesome-free/webfonts'
 @import '@fortawesome/fontawesome-free/scss/solid'
 @import 'bulma/bulma.sass'
 @import 'bulma-prefers-dark/bulma-prefers-dark.sass'
+
+.breadcrumb
+ position: fixed
+ width: 100%
+ z-index: 2
+ @media (prefers-color-scheme: dark)
+  background: #17181c
+ @media (prefers-color-scheme: light), (prefers-color-scheme: no-preference)
+  background: #ffffff

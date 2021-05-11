@@ -1,12 +1,18 @@
 <template>
-  <header class="hero-head breadcrumb is-centered">
-    <ul>
+  <header class="hero-head breadcrumb">
+    <ul class="p-3">
+      <li v-on:click="reset()">
+        <!-- <a class="icon">
+          <i class="fas fa-server fa-lg"></i>
+        </a> -->
+        <a>root</a>
+      </li>
       <li
-        v-for="breadcrumb of breadcrumbs"
-        v-bind:key="breadcrumb"
-        v-on:click="navigate(breadcrumb)"
+        v-for="(entry, index) of history"
+        v-bind:key="index"
+        v-on:click="navigate(entry)"
       >
-        <a>{{ breadcrumb.name }}</a>
+        <a>{{ entry.name }}</a>
       </li>
     </ul>
   </header>
@@ -15,20 +21,23 @@
 export default {
   name: "HeroHead",
   computed: {
-    breadcrumbs() {
-      return this.$store.state.breadcrumbs;
+    history() {
+      return this.$store.state.history;
     }
   },
   methods: {
-    navigate(breadcrumb) {
-      const index = this.breadcrumbs.findIndex(
-        (b) => breadcrumb.name === b.name
+    navigate(entry) {
+      const index = this.history.findIndex(
+        (_entry) => _entry.name === entry.name
       );
-      let breadcrumbs = [];
+      let history = [];
       for (let i = 0; i <= index; i++) {
-        breadcrumbs.push(this.breadcrumbs[i]);
+        history.push(this.history[i]);
       }
-      this.$store.commit("setBreadcrumbs", breadcrumbs);
+      this.$store.commit("setHistory", history);
+    },
+    reset() {
+      this.$store.commit("setHistory", []);
     }
   }
 };

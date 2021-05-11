@@ -2,8 +2,8 @@
   <div>
     <div class="columns is-multiline is-mobile">
       <div
-        v-for="path of crumb.content"
-        v-bind:key="path"
+        v-for="(path, index) of content"
+        v-bind:key="index"
         v-bind:class="[
           'column is-6-mobile is-4-tablet is-4-desktop is-2-widescreen is-2-fullhd',
           { 'is-hidden': isColumnHidden(path) }
@@ -11,13 +11,29 @@
       >
         <div
           v-if="path.type === 'directory'"
-          class="button is-link is-fullwidth"
+          class="has-text-centered"
           v-on:click="navigate(path)"
         >
-          {{ path.name }}
+          <div class="icon is-large has-text-warning p-6">
+            <i class="fas fa-folder fa-7x"></i>
+          </div>
+          <div>
+            {{ path.name }}
+          </div>
+          <div>
+            {{ toHumanSize(path.size) }}
+          </div>
         </div>
-        <div v-else>
-          {{ path.name }}
+        <div v-else class="has-text-centered">
+          <div class="icon is-large p-6">
+            <i class="fas fa-file fa-5x"></i>
+          </div>
+          <div>
+            {{ path.name }}
+          </div>
+          <div>
+            {{ toHumanSize(path.size) }}
+          </div>
         </div>
       </div>
     </div>
@@ -36,13 +52,18 @@ export default {
     files() {
       return this.$store.state.files;
     },
-    tree() {
-      return this.$store.state.tree;
+    history() {
+      return this.$store.state.history;
     },
-    crumb() {
-      let crumb = this.$store.state.tree;
-      this.$store.state.breadcrumbs.map((c) => (crumb = c));
-      return crumb;
+    content() {
+      try {
+        const entries = this.history.length;
+        return entries > 0
+          ? this.history[entries - 1].content
+          : this.$store.state.collections.content;
+      } catch (e) {
+        return [];
+      }
     }
   },
   methods: {
@@ -52,8 +73,13 @@ export default {
         (!this.files && path.type === "file")
       );
     },
+    toHumanSize(bytes) {
+      const sz = ["B", "K", "M", "G", "T", "P"];
+      const factor = Math.floor((bytes.toString().length - 1) / 3);
+      return (bytes / Math.pow(1024, factor)).toFixed(2) + sz[factor];
+    },
     navigate(path) {
-      this.$store.commit("breadcrumbsPush", path);
+      this.$store.commit("historyPush", path);
     }
   }
 };

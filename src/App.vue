@@ -19,14 +19,8 @@ export default {
       // so, this must be changed later for production
       .get("http://collections/")
       .then((response) => {
-        let tree = {
-          name: "root",
-          type: "directory",
-          content: response.data,
-          size: 0
-        };
-        this.$store.commit("setTree", tree);
-        this.$store.commit("breadcrumbsPush", tree);
+        this.$store.commit("setCollections", response.data);
+        // this.$store.commit("breadcrumbsPush", response.data.content[0]);
       })
       .catch((error) => console.log(error));
   }

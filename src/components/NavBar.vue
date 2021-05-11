@@ -46,7 +46,7 @@ export default {
   },
   computed: {
     isBackDisabled() {
-      return this.$store.state.breadcrumbs.length == 1;
+      return this.$store.state.history.length === 0;
     }
   },
   methods: {
@@ -55,7 +55,7 @@ export default {
       this.isActive = !this.isActive;
     },
     navigateBack() {
-      this.$store.commit("breadcrumbsPop");
+      this.$store.commit("historyPop");
     }
   }
 };
