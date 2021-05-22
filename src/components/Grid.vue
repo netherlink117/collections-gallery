@@ -24,7 +24,7 @@
             {{ toHumanSize(path.size) }}
           </div>
         </div>
-        <div v-else class="has-text-centered">
+        <div v-else class="has-text-centered" v-on:click="show(index)">
           <div class="icon is-large p-6">
             <i class="fas fa-file fa-5x"></i>
           </div>
@@ -80,6 +80,9 @@ export default {
     },
     navigate(path) {
       this.$store.commit("historyPush", path);
+    },
+    show(index) {
+      this.$store.commit("setIndex", index);
     }
   }
 };
