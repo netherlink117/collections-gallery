@@ -8,7 +8,9 @@ export default createStore({
     directories: true,
     files: true,
     collections: null,
-    history: []
+    history: [],
+    index: null,
+    report: null
   },
   mutations: {
     setView(state, payload) {
@@ -34,6 +36,24 @@ export default createStore({
     },
     historyPop(state) {
       state.history.pop();
+    },
+    setIndex(state, payload) {
+      state.index = payload;
+    },
+    increaseIndex(state) {
+      let index = state.history.length - 1;
+      if (state.index < state.history[index].content.length - 1) {
+        state.index++;
+      }
+    },
+    decreaseIndex(state) {
+      if (state.index >= 1) {
+        state.index--;
+      }
+    },
+    setReport(state, payload) {
+      localStorage.setItem("report", payload);
+      state.report = payload;
     }
   },
   actions: {},
