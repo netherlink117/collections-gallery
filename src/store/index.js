@@ -14,6 +14,10 @@ export default createStore({
     report: JSON.parse(localStorage.getItem("report") || "null")
   },
   mutations: {
+    setServer(state, payload) {
+      state.server = payload;
+      localStorage.setItem("server", state.server);
+    },
     setView(state, payload) {
       state.view = payload;
       localStorage.setItem("view", state.view);
