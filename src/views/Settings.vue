@@ -33,7 +33,7 @@
       />
     </div>
     <div class="control">
-      <button class="button is-link" v-bind:click="update()">
+      <button class="button is-link" v-on:click="update()">
         <span class="icon">
           <i class="fas fa-sync"></i>
         </span>
