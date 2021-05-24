@@ -32,6 +32,9 @@
         <router-link class="navbar-item" :to="{ name: 'Explorer' }">
           Home
         </router-link>
+        <router-link class="navbar-item" :to="{ name: 'Settings' }">
+          Settings
+        </router-link>
       </div>
     </div>
   </nav>
