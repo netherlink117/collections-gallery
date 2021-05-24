@@ -16,11 +16,8 @@ export default {
   },
   mounted() {
     this.$el.parentNode.classList.add("has-navbar-fixed-top");
-    // this must be the endpoint API address, this uses "http://collections/"
-    // because the testing machine is under a private DNS server with custom DNS entries...
-    // so, this must be changed later for production
     this.$axios
-      .get("http://collections/")
+      .get(this.$store.state.server)
       .then((response) => {
         this.$store.commit("setCollections", response.data);
       })
@@ -28,7 +25,7 @@ export default {
     if (localStorage.getItem("report") === "true") {
       const pid = setInterval(() => {
         this.$axios
-          .get("http://collections/?report")
+          .get(this.$store.state.server + "/?report")
           .then((response) => {
             if (response.data.message === "update active") {
               this.$store.commit("setReport", true);
