@@ -73,11 +73,20 @@ export default {
     setServer() {
       this.$store.commit("setServer", this.server);
       this.$axios
-        .get(this.$store.state.server)
+        .get(this.$store.state.server + "/")
         .then((response) => {
           this.$store.commit("setCollections", response.data);
+          this.$store.commit("addNotification", {
+            message: "Collections updated",
+            kind: "success"
+          });
         })
-        .catch((error) => console.log(error));
+        .catch((error) => {
+          this.$store.commit("addNotification", {
+            message: error.message,
+            kind: "danger"
+          });
+        });
     },
     update() {
       this.$axios
