@@ -11,7 +11,8 @@ export default createStore({
     collections: JSON.parse(localStorage.getItem("collections") || "null"),
     history: JSON.parse(localStorage.getItem("history") || "[]"),
     index: JSON.parse(localStorage.getItem("index") || "null"),
-    report: JSON.parse(localStorage.getItem("report") || "null")
+    report: JSON.parse(localStorage.getItem("report") || "null"),
+    notifications: JSON.parse(localStorage.getItem("notifications") || "[]")
   },
   mutations: {
     setServer(state, payload) {
@@ -70,6 +71,31 @@ export default createStore({
     setReport(state, payload) {
       state.report = payload;
       localStorage.setItem("report", state.report);
+    },
+    setNotifications(state, payload) {
+      state.notifications = payload;
+      localStorage.setItem(
+        "notifications",
+        JSON.stringify(state.notifications)
+      );
+    },
+    addNotification(state, payload) {
+      state.notifications.push(payload);
+      localStorage.setItem(
+        "notifications",
+        JSON.stringify(state.notifications)
+      );
+    },
+    dropNotification(state, payload) {
+      state.notifications = state.notifications.filter(
+        (notification, index) => {
+          return index != payload.index;
+        }
+      );
+      localStorage.setItem(
+        "notifications",
+        JSON.stringify(state.notifications)
+      );
     }
   },
   actions: {},
