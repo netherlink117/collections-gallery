@@ -2,17 +2,20 @@
   <nav-bar></nav-bar>
   <hero></hero>
   <modal></modal>
+  <notification-list></notification-list>
 </template>
 <script>
 import Hero from "./components/Hero.vue";
 import NavBar from "./components/NavBar.vue";
 import Modal from "./components/Modal.vue";
+import NotificationList from "./components/NotificationList.vue";
 export default {
   name: "App",
   components: {
     NavBar,
     Hero,
-    Modal
+    Modal,
+    NotificationList
   },
   mounted() {
     this.$el.parentNode.classList.add("has-navbar-fixed-top");
