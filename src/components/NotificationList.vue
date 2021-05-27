@@ -17,12 +17,14 @@
 </template>
 <script>
 const asuccess = require("@/assets/377017_1172853-lq.mp3");
+const awarning = require("@/assets/74233_47306-lq.mp3");
 const adanger = require("@/assets/366108_6687700-lq.mp3");
 export default {
   name: "NotificationList",
   data() {
     return {
       asuccess,
+      awarning,
       adanger
     };
   },
@@ -33,7 +35,16 @@ export default {
   },
   methods: {
     getSound(notification) {
-      return notification.kind === "danger" ? this.adanger : this.asuccess;
+      switch (notification.kind) {
+        case "danger":
+          return this.adanger;
+        case "awarnig":
+          return this.awarning;
+        case "success":
+          return this.asuccess;
+        default:
+          return this.asuccess;
+      }
     },
     dropNotification(index) {
       this.$store.commit("dropNotification", {
