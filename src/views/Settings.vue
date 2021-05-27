@@ -20,6 +20,20 @@
     </div>
   </div>
   <div class="field">
+    <label class="label">Sound</label>
+  </div>
+  <div class="field">
+    <p style="display: inline-block">Notification sound</p>
+    <input
+      id="switchRoundedDefault"
+      type="checkbox"
+      name="switchRoundedDefault"
+      class="switch is-rounded"
+      checked="checked"
+    />
+    <label for="switchRoundedDefault" style="float: right"></label>
+  </div>
+  <div class="field">
     <label class="label">Database date version</label>
   </div>
   <div class="field has-addons">
