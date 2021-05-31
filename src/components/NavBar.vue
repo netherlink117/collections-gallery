@@ -26,7 +26,10 @@
         <span aria-hidden="true"></span>
       </div>
     </div>
-    <div v-bind:class="['navbar-menu', { 'is-active': isActive }]">
+    <div
+      v-bind:class="['navbar-menu', { 'is-active': isActive }]"
+      v-on:click="close()"
+    >
       <div class="navbar-start"></div>
       <div class="navbar-end">
         <router-link class="navbar-item" :to="{ name: 'Explorer' }">
@@ -54,8 +57,10 @@ export default {
   },
   methods: {
     toggle() {
-      console.log(this.isActive);
       this.isActive = !this.isActive;
+    },
+    close() {
+      this.isActive = false;
     },
     navigateBack() {
       this.$store.commit("historyPop");
