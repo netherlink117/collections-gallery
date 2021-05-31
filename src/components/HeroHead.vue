@@ -1,11 +1,8 @@
 <template>
   <header class="hero-head breadcrumb">
-    <ul class="p-3">
+    <ul class="p-3" v-if="!settings">
       <li v-on:click="reset()">
-        <!-- <a class="icon">
-          <i class="fas fa-server fa-lg"></i>
-        </a> -->
-        <a>root</a>
+        <a>Explorer</a>
       </li>
       <li
         v-for="(entry, index) of history"
@@ -13,6 +10,11 @@
         v-on:click="navigate(entry)"
       >
         <a>{{ entry.name }}</a>
+      </li>
+    </ul>
+    <ul class="p-3" v-else>
+      <li>
+        <a>Settings</a>
       </li>
     </ul>
   </header>
@@ -23,6 +25,9 @@ export default {
   computed: {
     history() {
       return this.$store.state.history;
+    },
+    settings() {
+      return this.$route.name === "Settings";
     }
   },
   methods: {
