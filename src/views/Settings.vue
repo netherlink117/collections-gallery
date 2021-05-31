@@ -1,67 +1,73 @@
 <template>
-  <div class="field">
-    <label class="label">Server Address</label>
-  </div>
-  <div class="field has-addons">
-    <div class="control is-expanded">
-      <input
-        class="input"
-        type="text"
-        placeholder="Server address"
-        v-model="server"
-      />
-    </div>
-    <div class="control">
-      <button class="button is-link" v-on:click="setServer()">
-        <span class="icon">
-          <i class="fas fa-save"></i>
-        </span>
-      </button>
-    </div>
-  </div>
-  <div class="field">
-    <label class="label">Sound</label>
-  </div>
-  <div class="field">
-    <p style="display: inline-block">Notification sound</p>
-    <input
-      id="switchRoundedDefault"
-      type="checkbox"
-      name="switchRoundedDefault"
-      class="switch is-rounded"
-      checked="checked"
-    />
-    <label for="switchRoundedDefault" style="float: right"></label>
-  </div>
-  <div class="field">
-    <label class="label">Database date version</label>
-  </div>
-  <div class="field has-addons">
-    <div class="control is-expanded">
-      <input
-        class="input"
-        type="text"
-        placeholder="Database date version"
-        readonly
-        v-bind:value="version"
-      />
-    </div>
-    <div class="control">
-      <button class="button is-link" v-on:click="update()">
-        <span class="icon">
-          <i class="fas fa-sync"></i>
-        </span>
-      </button>
-    </div>
-  </div>
-  <div class="field">
-    <label class="label">About</label>
-  </div>
-  <div class="field">
-    <div class="control">
-      <router-link :to="{ name: 'About' }">
-        Here you can check more about Collections Gallery
-      </router-link>
+  <div class="columns is-multiline is-mobile is-centered">
+    <div
+      class="column is-12-mobile is-8-tablet is-8-desktop is-4-widescreen is-4-fullhd"
+    >
+      <div class="field">
+        <label class="label">Server Address</label>
+      </div>
+      <div class="field has-addons">
+        <div class="control is-expanded">
+          <input
+            class="input"
+            type="text"
+            placeholder="Server address"
+            v-model="server"
+          />
+        </div>
+        <div class="control">
+          <button class="button is-link" v-on:click="setServer()">
+            <span class="icon">
+              <i class="fas fa-save"></i>
+            </span>
+          </button>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Sound</label>
+      </div>
+      <div class="field">
+        <p style="display: inline-block">Notification sound</p>
+        <input
+          id="switchRoundedDefault"
+          type="checkbox"
+          name="switchRoundedDefault"
+          class="switch is-rounded"
+          checked="checked"
+        />
+        <label for="switchRoundedDefault" style="float: right"></label>
+      </div>
+      <div class="field">
+        <label class="label">Database date version</label>
+      </div>
+      <div class="field has-addons">
+        <div class="control is-expanded">
+          <input
+            class="input"
+            type="text"
+            placeholder="Database date version"
+            readonly
+            v-bind:value="version"
+          />
+        </div>
+        <div class="control">
+          <button class="button is-link" v-on:click="update()">
+            <span class="icon">
+              <i class="fas fa-sync"></i>
+            </span>
+          </button>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">About</label>
+      </div>
+      <div class="field">
+        <div class="control">
+          <router-link :to="{ name: 'About' }">
+            Here you can check more about Collections Gallery
+          </router-link>
+        </div>
+      </div>
     </div>
   </div>
 </template>
