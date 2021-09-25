@@ -1,11 +1,11 @@
 <template>
   <div class="notification-list">
-    <div
-      v-for="(notification, index) in notifications"
-      v-bind:key="index"
-      v-bind:class="'notification is-' + notification.kind"
-    >
-      <button class="delete" v-on:click="dropNotification(index)"></button>
+    <div v-for="(notification, index) in notifications" v-bind:key="index">
+      <button class="delete" v-on:click="dropNotification(index)">
+        <span class="icon">
+          <i class="fas fa-minus-circle"></i>
+        </span>
+      </button>
       {{ notification.message }}
       <audio
         autoplay="true"
