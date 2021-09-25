@@ -4,38 +4,10 @@ $fa-font-path: '~@fortawesome/fontawesome-free/webfonts'
 @import '@fortawesome/fontawesome-free/scss/fontawesome'
 @import '@fortawesome/fontawesome-free/scss/regular'
 @import '@fortawesome/fontawesome-free/scss/solid'
-@import 'bulma/bulma.sass'
-@import 'bulma-prefers-dark/bulma-prefers-dark.sass'
-@import 'bulma-switch'
 
-.breadcrumb
- position: fixed
- width: 100%
- z-index: 2
- @media (prefers-color-scheme: dark)
-  background: #17181c
- @media (prefers-color-scheme: light), (prefers-color-scheme: no-preference)
-  background: #ffffff
-
-.background-buttons:hover
- background: rgba(40,40,40,0.7)
-
-.is-foot-fixed
- background: darkorange
- color: white
- position: fixed
- bottom: 0
- left: 0
- width: 100vw
-
-.notification-list
- position: fixed
- max-width: 75vw
- bottom: 30px
- right: 4px
-
-.navbar *
- &:focus
-  background: transparent !important
- &:focus-within
-  background: transparent !important
+@media (prefers-color-scheme: light), (prefers-color-scheme: no-preference)
+  body
+    background-color: #FFFFFF
+@media (prefers-color-scheme: dark)
+  body
+    background-color: #000000
