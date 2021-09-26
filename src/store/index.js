@@ -231,7 +231,6 @@ export default createStore({
           }
         })
         .then((response) => {
-          console.log(response);
           for (let directory of response.data.content.directories) {
             commit("addDirectory", directory);
           }
