@@ -2,7 +2,7 @@
   <nav>
     <div>
       <router-link :to="{ name: 'Explorer' }">
-        <h1>Collections gallery</h1>
+        <h1>CG</h1>
       </router-link>
     </div>
     <div>
@@ -19,6 +19,10 @@ export default {
 
 <style lang="sass">
 nav
+  position: fixed
+  top: 0
+  right: 0
+  z-index: 9
   width: 100%
   display: flex
   flex-wrap: wrap
@@ -29,7 +33,7 @@ nav
   background-color: rgba(255,255,255,0.3)
   @media (prefers-color-scheme: dark)
     background-color: rgba(0,0,0,0.3)
-  >div
+  > div
     width: 50%
     &:nth-child(1)
       a, a:visited
