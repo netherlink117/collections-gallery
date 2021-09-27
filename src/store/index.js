@@ -18,19 +18,24 @@ export default createStore({
     },
     view: localStorage.getItem("view") || "grid", // || list
     order: localStorage.getItem("view") || "asc", // || des
-    process: "Done.",
+    process: {
+      local: "Done.",
+      remote: "Done."
+    },
     notifications: JSON.parse(localStorage.getItem("notifications") || "[]")
   },
   getters: {
     getPathDirectories: (state) => (path = "/") => {
-      return state.collections.directories.items.filter((item) => {
-        return item.parent.replace("\\", "/") === path;
+      let data = state.collections.directories.items.filter((item) => {
+        return item.parent.replaceAll("\\", "/") === path;
       });
+      return data;
     },
     getPathFiles: (state) => (path = "/") => {
-      return state.collections.files.items.filter((item) => {
-        return item.parent.replace("\\", "/") === path;
+      let data = state.collections.files.items.filter((item) => {
+        return item.parent.replaceAll("\\", "/") === path;
       });
+      return data;
     }
   },
   mutations: {
@@ -56,7 +61,8 @@ export default createStore({
       if (
         !state.collections.directories.items.find((item) => {
           item.path === payload.path;
-        })
+        }) &&
+        payload.parent !== "none"
       ) {
         state.collections.directories.items.push(payload);
         state.db
@@ -69,7 +75,8 @@ export default createStore({
       if (
         !state.collections.files.items.find((item) => {
           item.path === payload.path;
-        })
+        }) &&
+        payload.parent !== "none"
       ) {
         state.collections.files.items.push(payload);
         state.db
@@ -88,6 +95,12 @@ export default createStore({
     },
     setProcess(state, payload) {
       state.process = payload;
+    },
+    setProcessLocal(state, payload) {
+      state.process.local = payload;
+    },
+    setProcessRemote(state, payload) {
+      state.process.remote = payload;
     },
     setNotifications(state, payload) {
       state.notifications = payload;
@@ -118,7 +131,7 @@ export default createStore({
   actions: {
     init({ state, commit, dispatch }) {
       try {
-        commit("setProcess", "Initializing...");
+        commit("setProcessLocal", "Initializing...");
         // Prepare API
         let indexedDB =
           window.indexedDB ||
@@ -136,9 +149,8 @@ export default createStore({
         const request = indexedDB.open("collections", 1);
         // Notify on error
         request.onerror = function (event) {
-          commit("setProcess", "Done.");
           commit(
-            "setProcess",
+            "setProcessLocal",
             "Error opening local database.\nError code: " +
               event.target.errorCode
           );
@@ -147,14 +159,14 @@ export default createStore({
         request.onsuccess = function (event) {
           // Get DB (connection, I guess...)
           state.db = event.target.result;
-          commit("setProcess", "Done.");
+          commit("setProcessLocal", "Done.");
           dispatch("localDirectories");
           dispatch("localFiles");
         };
         // Triggered when update DB is changed on code
         request.onupgradeneeded = function (event) {
           state.db = event.target.result;
-          commit("setProcess", "Updating local database structure...");
+          commit("setProcessLocal", "Updating local database structure...");
           // Delete old directories object if exist
           if (state.db.objectStoreNames.contains("directories")) {
             state.db.deleteObjectStore("directories");
@@ -175,10 +187,10 @@ export default createStore({
           });
           // Create index on name from files
           filesStore.createIndex("name", "name", { unique: false });
-          commit("setProcess", "Done.");
+          commit("setProcessLocal", "Done.");
         };
       } catch (error) {
-        commit("setProcess", "Done.");
+        commit("setProcessLocal", "Done.");
         commit("addNotification", {
           message: "An unknown error has ocurred...",
           type: error
@@ -186,13 +198,13 @@ export default createStore({
       }
     },
     localDirectories({ state, commit }) {
-      commit("setProcess", "Loading local directories...");
+      commit("setProcessLocal", "Loading local directories...");
       state.db
         .transaction("directories")
         .objectStore("directories")
         .getAll().onsuccess = (event) => {
         state.collections.directories.items = event.target.result;
-        commit("setProcess", "Done.");
+        commit("setProcessLocal", "Done.");
         if (state.collections.directories.items.length <= 0) {
           commit("addNotification", {
             message: "Local directories are empty...",
@@ -202,12 +214,12 @@ export default createStore({
       };
     },
     localFiles({ state, commit }) {
-      commit("setProcess", "Loading local files...");
+      commit("setProcessLocal", "Loading local files...");
       state.db.transaction("files").objectStore("files").getAll().onsuccess = (
         event
       ) => {
         state.collections.files.items = event.target.result;
-        commit("setProcess", "Done.");
+        commit("setProcessLocal", "Done.");
         if (state.collections.files.items.length <= 0) {
           commit("addNotification", {
             message: "Local files are empty...",
@@ -217,6 +229,7 @@ export default createStore({
       };
     },
     remotePath({ state, commit }, payload) {
+      commit("setProcessRemote", "Loading remote data...");
       http
         .get(state.server, {
           params: {
@@ -230,9 +243,10 @@ export default createStore({
           for (let file of response.data.content.files) {
             commit("addFile", file);
           }
-          commit("setProcess", "Done.");
+          commit("setProcessRemote", "Done.");
         })
         .catch((error) => {
+          commit("setProcessRemote", "Done.");
           commit("addNotification", {
             message: error.message,
             type: "information"
