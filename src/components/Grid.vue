@@ -7,7 +7,10 @@
       class="directory"
       v-for="item of directories"
       v-bind:key="item.path"
-      :to="{ name: 'Explorer', query: { path: item.path.replace('\\', '/') } }"
+      :to="{
+        name: 'Explorer',
+        query: { path: item.path.replaceAll('\\', '/') }
+      }"
     >
       <div>
         <i class="fas fa-folder fa-7x"></i>
@@ -20,7 +23,10 @@
       class="file"
       v-for="item of files"
       v-bind:key="item.path"
-      :to="{ name: 'Explorer', query: { path: item.path.replace('\\', '/') } }"
+      :to="{
+        name: 'Explorer',
+        query: { path: item.path.replaceAll('\\', '/') }
+      }"
     >
       <div>
         <i class="fas fa-file fa-7x"></i>
@@ -42,26 +48,34 @@ export default {
       return this.$store.state.order;
     },
     directories() {
-      return this.$store.state.collections.directories.items.filter((item) => {
-        return (
-          item.parent.replace("\\", "/") === (this.$route.query.path || "/")
-        );
-      });
+      return this.$store.getters.getPathDirectories(this.$route.query.path);
     },
     files() {
-      return this.$store.state.collections.files.items.filter((item) => {
-        return (
-          item.parent.replace("\\", "/") === (this.$route.query.path || "/")
-        );
-      });
+      return this.$store.getters.getPathFiles(this.$route.query.path);
     }
   },
+  watch: {
+    $route: "tryLoad"
+  },
   methods: {
+    tryLoad() {
+      if (
+        this.$store.getters.getPathDirectories(this.$route.query.path).length <=
+          0 &&
+        this.$store.getters.getPathFiles(this.$route.query.path).length <= 0 &&
+        this.$route.fullPath !== "/settings"
+      ) {
+        this.$store.dispatch("remotePath", this.$route.query.path);
+      }
+    },
     toHumanSize(bytes) {
       const sz = ["B", "K", "M", "G", "T", "P"];
       const factor = Math.floor((bytes.toString().length - 1) / 3);
       return (bytes / Math.pow(1024, factor)).toFixed(2) + sz[factor];
     }
+  },
+  mounted() {
+    this.tryLoad();
   }
 };
 </script>
@@ -73,7 +87,9 @@ export default {
   flex-wrap: wrap
   justify-content: center
   gap: 1rem
+  text-shadow: 0 3.2px 7.2px rgba(0,0,0,0.132)
   > a
+    text-decoration: none
     width: calc(50% - 1rem)
     @media screen and (min-width:854px)
       width: calc(25% - 1rem)
@@ -94,8 +110,12 @@ export default {
       overflow: hidden
   .directory
     i
-      color: rgba(250,225,150, 1)
+      color: rgba(250,225,150, 0.7)
+      backdrop-filter: blur(1rem)
+      padding-bottom: 0.3rem
   .file
     i
-      color: rgba(220,220,220, 1)
+      color: rgba(222,222,222, 0.7)
+      backdrop-filter: blur(1rem)
+      padding-bottom: 0.3rem
 </style>
