@@ -2,26 +2,28 @@
   <Nav />
   <Main />
   <NotificationList />
-  <!-- <Loader v-if="status != 'Ready.'" v-bind:message="status" /> -->
+  <Loader v-if="process != 'Done.'" v-bind:message="process" />
 </template>
 <script>
 import Nav from "./components/Nav.vue";
 import Main from "./components/Main.vue";
 import NotificationList from "./components/NotificationList.vue";
-// import Loader from "./components/Loader.vue";
+import Loader from "./components/Loader.vue";
 export default {
   name: "App",
   components: {
     Nav,
     Main,
-    NotificationList
-    // Loader
+    NotificationList,
+    Loader
   },
-  methods: {},
+  computed: {
+    process() {
+      return this.$store.state.process;
+    }
+  },
   mounted() {
     this.$store.dispatch("init");
-    // this.$store.dispatch("localDirectories");
-    // this.$store.dispatch("localFiles");
   }
 };
 </script>
