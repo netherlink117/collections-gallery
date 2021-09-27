@@ -5,8 +5,8 @@
   <div v-else class="grid">
     <router-link
       class="directory"
-      v-for="item of directories"
-      v-bind:key="item.path"
+      v-for="(item, index) of directories"
+      v-bind:key="item.path + index"
       :to="{
         name: 'Explorer',
         query: { path: item.path.replaceAll('\\', '/') }
@@ -21,11 +21,13 @@
     </router-link>
     <router-link
       class="file"
-      v-for="item of files"
-      v-bind:key="item.path"
+      v-for="(item, index) of files"
+      v-bind:key="item.path + index"
       :to="{
         name: 'Explorer',
-        query: { path: item.path.replaceAll('\\', '/') }
+        query: {
+          path: item.path.replaceAll('\\', '/')
+        }
       }"
     >
       <div>
@@ -43,39 +45,22 @@
 <script>
 export default {
   name: "Grid",
-  computed: {
-    order() {
-      return this.$store.state.order;
+  props: {
+    directories: {
+      type: Array,
+      required: true
     },
-    directories() {
-      return this.$store.getters.getPathDirectories(this.$route.query.path);
-    },
-    files() {
-      return this.$store.getters.getPathFiles(this.$route.query.path);
+    files: {
+      type: Array,
+      required: true
     }
   },
-  watch: {
-    $route: "tryLoad"
-  },
   methods: {
-    tryLoad() {
-      if (
-        this.$store.getters.getPathDirectories(this.$route.query.path).length <=
-          0 &&
-        this.$store.getters.getPathFiles(this.$route.query.path).length <= 0 &&
-        this.$route.fullPath !== "/settings"
-      ) {
-        this.$store.dispatch("remotePath", this.$route.query.path);
-      }
-    },
     toHumanSize(bytes) {
       const sz = ["B", "K", "M", "G", "T", "P"];
       const factor = Math.floor((bytes.toString().length - 1) / 3);
       return (bytes / Math.pow(1024, factor)).toFixed(2) + sz[factor];
     }
-  },
-  mounted() {
-    this.tryLoad();
   }
 };
 </script>
@@ -83,6 +68,7 @@ export default {
 <style lang="sass">
 .grid
   padding: 0.5rem
+  padding-top: 4rem
   display: flex
   flex-wrap: wrap
   justify-content: center
