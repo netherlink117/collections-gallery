@@ -16,7 +16,7 @@ export default createStore({
         visible: JSON.parse(localStorage.getItem("files") || "true")
       }
     },
-    view: localStorage.getItem("view") || "grid", // || list
+    view: localStorage.getItem("view") || "grid", // || list || viewer
     order: localStorage.getItem("view") || "asc", // || des
     process: {
       local: "Done.",
@@ -245,12 +245,31 @@ export default createStore({
           }
           commit("setProcessRemote", "Done.");
         })
-        .catch((error) => {
-          commit("setProcessRemote", "Done.");
-          commit("addNotification", {
-            message: error.message,
-            type: "information"
-          });
+        .catch(() => {
+          const path = payload.split("/");
+          path.pop();
+          http
+            .get(state.server, {
+              params: {
+                path: path.join("/") || "/"
+              }
+            })
+            .then((response) => {
+              for (let directory of response.data.content.directories) {
+                commit("addDirectory", directory);
+              }
+              for (let file of response.data.content.files) {
+                commit("addFile", file);
+              }
+              commit("setProcessRemote", "Done.");
+            })
+            .catch((error) => {
+              commit("setProcessRemote", "Done.");
+              commit("addNotification", {
+                message: error.message,
+                type: "information"
+              });
+            });
         });
     }
   },
