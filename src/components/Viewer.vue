@@ -9,7 +9,7 @@
       <div
         v-if="metadata.mimetype.includes('image')"
         v-bind:style="{
-          backgroundImage: 'url(' + currentFileURL + ')'
+          backgroundImage: 'url(\'' + currentFileURL + '\')'
         }"
       >
         Some awesome background
@@ -93,7 +93,15 @@ export default {
 .viewer
   position: fixed
   display: grid
-  grid-template-columns: 15% 70% 15%
+  grid-template-columns: 30% 40% 30%
+  @media screen and (min-width:854px)
+    grid-template-columns: 25% 50% 25%
+  @media screen and (min-width:1280px)
+    grid-template-columns: 20% 60% 20%
+  @media screen and (min-width:1600px)
+    grid-template-columns: 15% 70% 15%
+  @media screen and (min-width:2560px)
+    grid-template-columns: 10% 80% 10%
   grid-template-rows: 90% 10%
   justify-content: stretch
   align-content: stretch
@@ -118,6 +126,7 @@ export default {
       height: 120vh
       width: 120vw
       margin: -10%
+      background-color: rgba(0,0,0,0)
       background-size: cover
       background-repeat: no-repeat
       background-position: center
@@ -135,7 +144,7 @@ export default {
       grid-area: 1 / 1 / 3 / 2
       img, video
         max-height: 77%
-        max-width: 90%
+        max-width: 95%
         margin: auto
         padding: 7px
         background-color: rgba(255,255,255,0.3)
