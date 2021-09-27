@@ -11,21 +11,13 @@
         <div></div>
         <div></div>
       </div>
-      <div>{{ message }}</div>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: "Loader",
-  props: {
-    message: {
-      type: String,
-      default: "",
-      required: true
-    }
-  }
+  name: "Loader"
 };
 </script>
 
@@ -39,24 +31,10 @@ export default {
   position: absolute
   top: 0
   left: 0
-  backdrop-filter: blur(1rem)
-  >div
-    width: 30%
-    // height: 20%
-    padding: 1rem
-    display: flex
-    flex-direction: column
-    align-items: center
-    justify-content: center
-    box-shadow: 0 25.6px 57.6px 0 rgba(0,0,0,.22),0 4.8px 14.4px 0 rgba(0,0,0,.18)
-    border-radius: 3rem
-    background-color: rgba(255,255,255,0.5)
-    color: #000000
-    @media (prefers-color-scheme: dark)
-      background-color: rgba(0,0,0,0.5)
-      color: rgb(255,255,255)
-    >div:nth-child(2)
-      padding: 1rem
+  background: rgba(65,184,131,1)
+  @media (prefers-color-scheme: dark)
+    background: rgba(53,73,94,1)
+
 
 .lds-roller
   display: inline-block
@@ -73,7 +51,11 @@ export default {
       width: 7px
       height: 7px
       border-radius: 50%
-      background: #fff
+      background: rgba(255,255,255,1)
+      background: rgba(255,255,255,1)
+      @media (prefers-color-scheme: dark)
+        background: rgba(65,184,131,1)
+        background: rgba(255,255,255,1)
       margin: -4px 0 0 -4px
     &:nth-child(1)
       animation-delay: -0.036s

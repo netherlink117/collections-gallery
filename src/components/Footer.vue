@@ -14,9 +14,8 @@ export default {
 
 <style lang="sass">
 footer
+  backdrop-filter: blur(1rem)
   background-color: rgba(255,255,255,0.3)
-  color: #000000
   @media (prefers-color-scheme: dark)
     background-color: rgba(0,0,0,0.3)
-    color: rgb(255,255,255)
 </style>
