@@ -18,7 +18,20 @@ export default createStore({
     },
     view: localStorage.getItem("view") || "grid", // || list
     order: localStorage.getItem("view") || "asc", // || des
+    process: "Done.",
     notifications: JSON.parse(localStorage.getItem("notifications") || "[]")
+  },
+  getters: {
+    getPathDirectories: (state) => (path = "/") => {
+      return state.collections.directories.items.filter((item) => {
+        return item.parent.replace("\\", "/") === path;
+      });
+    },
+    getPathFiles: (state) => (path = "/") => {
+      return state.collections.files.items.filter((item) => {
+        return item.parent.replace("\\", "/") === path;
+      });
+    }
   },
   mutations: {
     setServer(state, payload) {
@@ -73,6 +86,9 @@ export default createStore({
       state.order = payload;
       localStorage.setItem("order", state.order);
     },
+    setProcess(state, payload) {
+      state.process = payload;
+    },
     setNotifications(state, payload) {
       state.notifications = payload;
       localStorage.setItem(
@@ -102,10 +118,7 @@ export default createStore({
   actions: {
     init({ state, commit, dispatch }) {
       try {
-        commit("addNotification", {
-          message: "Initializing...",
-          type: "information"
-        });
+        commit("setProcess", "Initializing...");
         // Prepare API
         let indexedDB =
           window.indexedDB ||
@@ -123,31 +136,25 @@ export default createStore({
         const request = indexedDB.open("collections", 1);
         // Notify on error
         request.onerror = function (event) {
-          commit("addNotification", {
-            message:
-              "Error opening local database.\nError code: " +
-              event.target.errorCode,
-            type: "information"
-          });
+          commit("setProcess", "Done.");
+          commit(
+            "setProcess",
+            "Error opening local database.\nError code: " +
+              event.target.errorCode
+          );
         };
         // Notify on success
         request.onsuccess = function (event) {
           // Get DB (connection, I guess...)
           state.db = event.target.result;
-          commit("addNotification", {
-            message: "Local database opened...",
-            type: "information"
-          });
+          commit("setProcess", "Done.");
           dispatch("localDirectories");
           dispatch("localFiles");
         };
         // Triggered when update DB is changed on code
         request.onupgradeneeded = function (event) {
           state.db = event.target.result;
-          commit("addNotification", {
-            message: "Updating local database structure...",
-            type: "information"
-          });
+          commit("setProcess", "Updating local database structure...");
           // Delete old directories object if exist
           if (state.db.objectStoreNames.contains("directories")) {
             state.db.deleteObjectStore("directories");
@@ -168,32 +175,24 @@ export default createStore({
           });
           // Create index on name from files
           filesStore.createIndex("name", "name", { unique: false });
-          commit("addNotification", {
-            message: "Structure for local database updated...",
-            type: "information"
-          });
+          commit("setProcess", "Done.");
         };
       } catch (error) {
+        commit("setProcess", "Done.");
         commit("addNotification", {
           message: "An unknown error has ocurred...",
-          type: "information"
+          type: error
         });
       }
     },
     localDirectories({ state, commit }) {
-      commit("addNotification", {
-        message: "Loading local directories...",
-        type: "information"
-      });
+      commit("setProcess", "Loading local directories...");
       state.db
         .transaction("directories")
         .objectStore("directories")
         .getAll().onsuccess = (event) => {
         state.collections.directories.items = event.target.result;
-        commit("addNotification", {
-          message: "Local directories loaded...",
-          type: "information"
-        });
+        commit("setProcess", "Done.");
         if (state.collections.directories.items.length <= 0) {
           commit("addNotification", {
             message: "Local directories are empty...",
@@ -203,18 +202,12 @@ export default createStore({
       };
     },
     localFiles({ state, commit }) {
-      commit("addNotification", {
-        message: "Loading local files...",
-        type: "information"
-      });
+      commit("setProcess", "Loading local files...");
       state.db.transaction("files").objectStore("files").getAll().onsuccess = (
         event
       ) => {
         state.collections.files.items = event.target.result;
-        commit("addNotification", {
-          message: "Local files loaded...",
-          type: "information"
-        });
+        commit("setProcess", "Done.");
         if (state.collections.files.items.length <= 0) {
           commit("addNotification", {
             message: "Local files are empty...",
@@ -237,6 +230,7 @@ export default createStore({
           for (let file of response.data.content.files) {
             commit("addFile", file);
           }
+          commit("setProcess", "Done.");
         })
         .catch((error) => {
           commit("addNotification", {
