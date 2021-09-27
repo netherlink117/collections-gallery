@@ -8,6 +8,7 @@ if (isset($_GET['path'])) {
     $dir = str_replace('\\', $pathSeparator, $_GET['path']);
     $dir = str_replace('/', $pathSeparator, $dir);
     if (!is_dir($rootPath.($dir === $pathSeparator ? '' : $dir))){
+      http_response_code(404);
       throw new Exception('Path not exists');
     }
     $paths = scandir($rootPath.$dir);
@@ -18,6 +19,7 @@ if (isset($_GET['path'])) {
       'path' => $dir,
       'name' => $name,
       'type' => 'directory',
+      'parent' => 'none',
       'content' => [
         'directories' => array(),
         'files' => array(),
@@ -27,19 +29,17 @@ if (isset($_GET['path'])) {
       if ($path != '.' && $path != '..') {
         if (is_dir($rootPath.($dir === $pathSeparator ? '' : $dir).$pathSeparator.$path)) {
           $subdirectory = [
+            'parent' => $directory['path'],
             'path' => ($dir === $pathSeparator ? '' : $dir).$pathSeparator.$path,
             'name' => $path,
-            'type' => 'directory',
-            'content' => [
-              'directories' => array(),
-              'files' => array(),
-            ]
+            'type' => 'directory'
           ];
           array_push($directory['content']['directories'], $subdirectory);
         } else {
           $filesize = filesize($rootPath.($dir === $pathSeparator ? '' : $dir).$pathSeparator.$path);
           $mimetype = mime_content_type($rootPath.($dir === $pathSeparator ? '' : $dir).$pathSeparator.$path);
           $file = [
+            'parent' => $directory['path'],
             'path' => ($dir === $pathSeparator ? '' : $dir).$pathSeparator.$path,
             'name' => $path,
             'type' => 'file',
