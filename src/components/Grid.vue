@@ -68,7 +68,7 @@ export default {
 <style lang="sass">
 .grid
   padding: 0.5rem
-  padding-top: 5rem
+  padding-top: 9rem
   display: flex
   flex-wrap: wrap
   justify-content: center

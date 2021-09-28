@@ -9,15 +9,70 @@
       <router-link :to="{ name: 'Explorer' }"> Home </router-link>
       <router-link :to="{ name: 'Settings' }"> Settings </router-link>
     </div>
+    <div>
+      <router-link
+        v-for="(hotLink, index) of hotLinks"
+        v-bind:key="index"
+        :to="hotLink"
+      >
+        <div v-if="index > 0">
+          <i class="fas fa-caret-right"></i>
+        </div>
+        <div v-else></div>
+        <div>
+          <div>
+            <i class="fas fa-folder fa-lg"></i>
+          </div>
+          <div>{{ hotLink.content }}</div>
+        </div>
+      </router-link>
+    </div>
   </nav>
 </template>
 <script>
 export default {
-  name: "Nav"
+  name: "Nav",
+  computed: {
+    hotLinks() {
+      const hotLinks = [];
+      // if (
+      //   this.$route.query.path !== undefined &&
+      //   this.$route.query.path !== "/"
+      // ) {
+      hotLinks.push({
+        name: "Explorer",
+        content: "root",
+        query: { path: "/" }
+      });
+      // }
+      (this.$route.query.path || "/")
+        .split("/")
+        .filter((path) => path !== "")
+        .forEach((path, index) => {
+          if (index > 0) {
+            hotLinks.push({
+              name: "Explorer",
+              content: path,
+              query: { path: hotLinks[index].query.path + "/" + path }
+            });
+          } else {
+            hotLinks.push({
+              name: "Explorer",
+              content: path,
+              query: { path: "/" + path }
+            });
+          }
+        });
+      // hotLinks.pop();
+      return hotLinks;
+    }
+  }
 };
 </script>
 
 <style lang="sass">
+::-webkit-scrollbar
+  display: none
 nav
   position: fixed
   top: 0
@@ -55,4 +110,35 @@ nav
           @media (prefers-color-scheme: dark)
             color: rgba(255,255,255,1)
             color: rgba(222,222,222,1)
+  >div:nth-child(3)
+    width: 100%
+    overflow-x: scroll
+    gap: 0.1rem
+    display: flex
+    align-items: center
+    border-radius: 1rem
+    a:last-child
+      right: 0
+    a
+      gap: 0.1rem
+      display: flex
+      align-items: center
+      text-decoration: none
+      // text-overflow: ellipsis
+      white-space: nowrap
+      // word-break: break-all
+      >div:nth-child(2)
+        &:hover
+          div, i
+            color: rgba(0,0,0,1)
+            color: rgba(222,222,222,1)
+            @media (prefers-color-scheme: dark)
+              color: rgba(255,255,255,1)
+              color: rgba(222,222,222,1)
+        display: flex
+        // flex-direction: column
+        align-items: center
+        padding: 1rem
+        div:first-child
+          padding-right: 0.3rem
 </style>
