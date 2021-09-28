@@ -112,7 +112,7 @@ nav
             color: rgba(222,222,222,1)
   >div:nth-child(3)
     width: 100%
-    overflow-x: scroll
+    overflow-x: auto
     gap: 0.1rem
     display: flex
     align-items: center
