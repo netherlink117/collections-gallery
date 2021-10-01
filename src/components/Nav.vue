@@ -9,7 +9,7 @@
       <router-link :to="{ name: 'Explorer' }"> Home </router-link>
       <router-link :to="{ name: 'Settings' }"> Settings </router-link>
     </div>
-    <div>
+    <div :class="{ hidden: !showHotLinks }">
       <router-link
         v-for="(hotLink, index) of hotLinks"
         v-bind:key="index"
@@ -65,6 +65,9 @@ export default {
         });
       // hotLinks.pop();
       return hotLinks;
+    },
+    showHotLinks() {
+      return this.$route.path === "/";
     }
   }
 };
@@ -141,4 +144,6 @@ nav
         padding: 1rem
         div:first-child
           padding-right: 0.3rem
+.hidden
+  visibility: hidden
 </style>
