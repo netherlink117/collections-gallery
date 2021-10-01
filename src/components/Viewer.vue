@@ -53,7 +53,7 @@ export default {
     path() {
       const path = this.$route.query.path.split("/");
       path.pop();
-      return path.join("/");
+      return path.length > 1 ? path.join("/") : "/";
     },
     name() {
       const name = this.metadata.name.split(".");
