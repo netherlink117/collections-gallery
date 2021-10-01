@@ -73,7 +73,7 @@ export default {
   background-color: rgba(255,255,255,0.3)
   @media (prefers-color-scheme: dark)
     background-color: rgba(0,0,0,0.3)
-  margin-top: 5rem
+  margin-top: 9rem
   width: calc(90% - 1rem)
   @media screen and (min-width:854px)
     width: calc(55% - 1rem)
