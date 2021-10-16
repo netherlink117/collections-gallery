@@ -1,13 +1,17 @@
 <?php
-header("Access-Control-Allow-Origin: *");
+header('Access-Control-Allow-Origin: *');
 $is_ffmpeg_installed = true;
-$rootPath = dirname(__FILE__);
 $pathSeparator = PHP_OS_FAMILY === 'Windows' ? '\\' : '/';
+$rootPath = dirname(__FILE__);
+$rootPath = explode($pathSeparator, $rootPath);
+array_pop($rootPath);
+array_pop($rootPath);
+$rootPath = join($pathSeparator, $rootPath);
 if (isset($_GET['path'])) {
   try {
     $dir = str_replace('\\', $pathSeparator, $_GET['path']);
     $dir = str_replace('/', $pathSeparator, $dir);
-    if (!is_dir($rootPath.($dir === $pathSeparator ? '' : $dir))){
+    if (!is_dir($rootPath.($dir === $pathSeparator ? '' : $dir)) || strpos($_GET['path'], $pathSeparator.'..') !== false){
       http_response_code(404);
       throw new Exception('Path not exists');
     }
@@ -90,4 +94,6 @@ if (isset($_GET['path'])) {
       'message' => $e->getMessage()
     ]);
   }
+} else {
+  echo file_get_contents("./dist/index.html");
 }
