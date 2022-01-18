@@ -4,13 +4,13 @@ $is_collections_container = true;
 $is_ffmpeg_installed = true;
 $pathSeparator = PHP_OS_FAMILY === 'Windows' ? '\\' : '/';
 $rootPath = dirname(__FILE__);
-if ($is_collections_container) {
-  $rootPath = "/collections";
-}
 $rootPath = explode($pathSeparator, $rootPath);
 array_pop($rootPath);
 array_pop($rootPath);
 $rootPath = join($pathSeparator, $rootPath);
+if ($is_collections_container) {
+  $rootPath = "/collections";
+}
 if (isset($_GET['path'])) {
   try {
     $dir = str_replace('\\', $pathSeparator, $_GET['path']);
