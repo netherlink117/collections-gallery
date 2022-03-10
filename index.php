@@ -33,6 +33,8 @@ if (isset($_GET['path'])) {
         'files' => array(),
       ]
     ];
+    $counter = 0;
+    $push = !isset($_GET['last']);
     foreach ($paths as &$path) {
       if ($path != '.' && $path != '..') {
         if (is_dir($rootPath.($dir === $pathSeparator ? '' : $dir).$pathSeparator.$path)) {
@@ -88,7 +90,18 @@ if (isset($_GET['path'])) {
               }
             }
           }
-          array_push($directory['content']['files'], $file);
+          if($counter >= 21) {
+            break;
+          } else {
+            if((isset($_GET['last']) ? $_GET['last'] : null) === $file['name'] || $push) {
+              $push = true;
+              array_push($directory['content']['files'], $file);
+              $counter++;
+            }
+            // else {
+              // $push = false; this wont change for now
+            // }
+          }
         }
       }
     }
