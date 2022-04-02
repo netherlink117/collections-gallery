@@ -94,9 +94,11 @@ if (isset($_GET['path'])) {
             break;
           } else {
             if((isset($_GET['last']) ? $_GET['last'] : null) === $file['name'] || $push) {
+              if($push) {
+                array_push($directory['content']['files'], $file);
+                $counter++;
+              }
               $push = true;
-              array_push($directory['content']['files'], $file);
-              $counter++;
             }
             // else {
               // $push = false; this wont change for now
