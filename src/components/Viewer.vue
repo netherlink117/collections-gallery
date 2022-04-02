@@ -1,228 +1,145 @@
-<template>
-  <div class="viewer">
-    <div
-      v-if="metadata.mimetype.includes('image')"
-      v-bind:style="{
-        backgroundImage: 'url(\'' + currentFileURL + '\')'
-      }"
-    >
-      Some awesome background
-    </div>
-    <div v-else @click="$router.push(path)">Some awesome background</div>
-    <div v-if="metadata.mimetype.includes('image')">
-      <img v-bind:src="currentFileURL" v-bind:alt="metadata.name" />
-    </div>
-    <div v-else-if="metadata.mimetype.includes('video')">
-      <video v-bind:src="currentFileURL" controls></video>
-    </div>
-    <div>
-      <div>
-        <div>
-          {{ name }}
-        </div>
-        <div>
-          <!-- <router-link :to="{ name: 'Explorer', query: { path } }">
-            <i class="fas fa-th fa-2x"></i>
-          </router-link>
-          <div></div> -->
-          <router-link
-            :to="{ name: 'Explorer', query: { path: previusFileURL } }"
-          >
-            <i class="fas fa-arrow-left fa-2x"></i>
-          </router-link>
-          <div></div>
-          <router-link :to="{ name: 'Explorer', query: { path: nextFileURL } }">
-            <i class="fas fa-arrow-right fa-2x"></i>
-          </router-link>
-        </div>
-      </div>
-    </div>
-    <!-- <div>Collections Gallery</div> -->
-    <router-link :to="{ name: 'Explorer', query: { path } }">
-      <i class="fas fa-times fa-2x"></i>
-    </router-link>
-  </div>
-</template>
-<script>
-export default {
-  name: "Viewer",
-  computed: {
-    server() {
-      return this.$store.state.server;
-    },
-    path() {
-      const path = this.$route.query.path.split("/");
-      path.pop();
-      return path.length > 1 ? path.join("/") : "/";
-    },
-    name() {
-      const name = this.metadata.name.split(".");
-      name.pop();
-      return name.join(".");
-    },
-    files() {
-      return this.$store.getters.getPathFiles(this.path);
-    },
-    metadata() {
-      return this.files[this.currentFileIndex];
-    },
-    currentFileIndex() {
-      return this.files.findIndex((file) => {
-        return file.path.replaceAll("\\", "/") === this.$route.query.path;
-      });
-    },
-    currentFileURL() {
-      return (
-        this.server +
-        this.files[this.currentFileIndex].path.replaceAll("\\", "/")
-      );
-    },
-    nextFileIndex() {
-      if (this.currentFileIndex + 1 >= this.files.length) {
-        return this.currentFileIndex;
-      } else {
-        return this.currentFileIndex + 1;
-      }
-    },
-    nextFileURL() {
-      return this.files[this.nextFileIndex].path.replaceAll("\\", "/");
-    },
-    previusFileIndex() {
-      if (this.currentFileIndex - 1 < 0) {
-        return this.currentFileIndex;
-      } else {
-        return this.currentFileIndex - 1;
-      }
-    },
-    previusFileURL() {
-      return this.files[this.previusFileIndex].path.replaceAll("\\", "/");
-    }
-  },
-  methods: {
-    toHumanSize(bytes) {
-      const sz = ["B", "K", "M", "G", "T", "P"];
-      const factor = Math.floor((bytes.toString().length - 1) / 3);
-      return (bytes / Math.pow(1024, factor)).toFixed(2) + sz[factor];
-    }
+<script setup>
+import { computed, ref } from "vue";
+import { useRouter, RouterLink } from "vue-router";
+import { useIndexStore } from "../stores";
+
+const store = useIndexStore();
+const router = useRouter();
+
+const file = computed(() => {
+  return store.explorer.file;
+});
+
+const final = ref(false);
+
+const pre = computed(() => {
+  let index = store.explorer.files.items.findIndex(
+    (f) => f.path === file.value.path
+  );
+  if (index > 0) {
+    index--;
+  } else {
+    return file.value;
   }
-};
+  return store.explorer.files.items[index];
+});
+
+const nex = computed(() => {
+  let index = store.explorer.files.items.findIndex(
+    (f) => f.path === file.value.path
+  );
+  if (index < store.explorer.files.items.length - 1) {
+    index++;
+  } else {
+    if (!final.value) {
+      preload(file.value);
+    }
+    return file.value;
+  }
+  return store.explorer.files.items[index];
+});
+
+function preload(last) {
+  store.addActivity("Loading remote files.");
+  store
+    .getContent(last.parent || "/", last)
+    .then((content) => {
+      store.removeActivity("Loading remote files.");
+      if (content.directories.length === 0) {
+        if (content.files.length === 0) {
+          final.value = true;
+        } else if (
+          !(
+            /^.*image.*$/.test(content.files[0].mimetype) ||
+            /^.*video.*$/.test(content.files[0].mimetype)
+          ) &&
+          content.directories.length === 0
+        ) {
+          final.value = true;
+        }
+      }
+      return content;
+    })
+    .catch((error) => {
+      final.value = true;
+      store.removeActivity("Loading remote files.");
+      store.addActivity(error);
+    });
+}
+
+function getFileSrc(item) {
+  if (navigator.onLine) {
+    return store.endpoint + item.path.replaceAll("\\", "/");
+  } else {
+    return item.bin;
+  }
+}
 </script>
 
-<style lang="sass">
-.viewer
-  background: rgba(65,184,131,1)
-  @media (prefers-color-scheme: dark)
-    background: rgba(53,73,94,1)
-  height: 100vh
-  width: 100vw
-  overflow: hidden
-  position: fixed
-  top: 0
-  right: 0
-  z-index: 10
-  display: grid
-  grid-template-rows: 80vh 20vh
-  @media screen and (min-width:854px)
-    grid-template-rows: 82.5vh 17.5vh
-  @media screen and (min-width:1280px)
-    grid-template-rows: 85vh 15vh
-  @media screen and (min-width:1600px)
-    grid-template-rows: 87.5vh 12.5vh
-  @media screen and (min-width:2560px)
-    grid-template-rows: 90vh 10vh
-  grid-template-columns: 100vw
-  flex-direction: column
-  justify-content: stretch
-  align-content: stretch
-  align-items: stretch
-  >div:first-child
-    grid-area: 1 / 1 / 3 / 2
-    filter: blur(1rem)
-    height: 120vh
-    width: 120vw
-    margin: -10%
-    background-color: rgba(0,0,0,0)
-    background-size: cover
-    background-repeat: no-repeat
-    background-position: center
-    z-index: 11
-  >div:nth-child(2)
-    grid-area: 1 / 1 / 2 / 2
-    display: flex
-    align-items: center
-    align-content: center
-    justify-content: center
-    z-index: 12
-    img, video
-      backdrop-filter: blur(1rem)
-      max-height: 95%
-      max-width: 95%
-      margin: auto
-      padding: 7px
-      background-color: rgba(255,255,255,0.3)
-      border-radius: 1rem
-      box-shadow: 0 3.2px 7.2px 0 rgba(0,0,0,.132),0 .6px 1.8px 0 rgba(0,0,0,.108)
-      @media (prefers-color-scheme: dark)
-        background-color: rgba(0,0,0,0.3)
-  >div:nth-child(3)
-    grid-area: 2 / 1 / 3 / 2
-    padding: 0px 2.5%
-    z-index: 13
-    display: flex
-    justify-content: stretch
-    align-items: center
-    >div
-      width: 100%
-      padding: 1rem
-      display: flex
-      justify-content: space-between
-      backdrop-filter: blur(1rem)
-      align-items: center
-      align-content: stretch
-      border-radius: 1rem
-      background-color: rgba(255,255,255,0.3)
-      box-shadow: 0 3.2px 7.2px 0 rgba(0,0,0,.132),0 .6px 1.8px 0 rgba(0,0,0,.108)
-      @media (prefers-color-scheme: dark)
-        background-color: rgba(0,0,0,0.3)
-      >div
-        display: flex
-        gap: 1rem
-        &:first-child
-          text-overflow: ellipsis
-          white-space: nowrap
-          word-break: break-all
-          overflow: hidden
-        div
-          width: 1px
-          background-color: rgba(255,255,255,0.3)
-          @media (prefers-color-scheme: dark)
-            background-color: rgba(0,0,0,0.3)
-        a
-          align-self: center
-          justify-self: center
-          text-decoration: none
-          display: flex
-          flex-direction: column
-          justify-content: center
-          align-items: center
-          align-content: center
-  >a:nth-child(4)
-    grid-area: 1 / 1 / 2 / 2
-    position: fixed
-    top: 0
-    right: 0
-    z-index: 13
-    margin: 2.5vh 2.5vw
-    border-radius: 1rem
-    height: 3.5rem
-    text-decoration: none
-    width: 3.5rem
-    padding: 1rem
-    display: flex
-    align-items: center
-    background-color: rgba(255,255,255,0.3)
-    backdrop-filter: blur(1rem)
-    box-shadow: 0 3.2px 7.2px 0 rgba(0,0,0,.132),0 .6px 1.8px 0 rgba(0,0,0,.108)
-    @media (prefers-color-scheme: dark)
-      background-color: rgba(0,0,0,0.3)
-</style>
+<template>
+  <div
+    class="fixed top-0 left-0 w-screen h-screen flex justify-center items-center"
+  >
+    <div
+      class="fixed top-0 left-0 w-screen h-screen z-0 bg-dark-900 opacity-95 backdrop-filter backdrop-blur-sm"
+      @click="
+        router.replace({ name: 'Explorer', query: { path: file.parent } })
+      "
+    ></div>
+    <div
+      class="md:container mx-auto flex items-stretch z-1 bg-dark-900 border-1 border-dark-500 rounded-md"
+    >
+      <div class="flex items-center m-3">
+        <RouterLink
+          v-if="pre"
+          :to="{ name: 'Explorer', query: { path: pre.path } }"
+          :class="{ 'opacity-25': pre.path === file.path }"
+          replace
+        >
+          <div
+            class="p-3 opacity-75 bg-dark-500 border-1 border-dark-500 hover:border-dark-100 rounded-full aspect-square"
+          >
+            &lt;
+          </div>
+        </RouterLink>
+      </div>
+      <div
+        class="flex-1 flex justify-center"
+        style="max-height: calc(100vh - 3vh)"
+        v-if="file.mimetype.includes('image')"
+      >
+        <img
+          class="max-h-full"
+          v-bind:src="getFileSrc(file)"
+          v-bind:alt="file.name"
+        />
+      </div>
+      <div
+        class="flex-1 max-h-screen flex justify-center"
+        v-else-if="file.mimetype.includes('video')"
+      >
+        <video
+          class="max-h-full"
+          v-bind:src="getFileSrc(file)"
+          controls
+          autoplay
+          muted
+        ></video>
+      </div>
+      <div class="flex items-center m-3">
+        <RouterLink
+          v-if="nex"
+          :to="{ name: 'Explorer', query: { path: nex.path } }"
+          :class="{ 'opacity-25': nex.path === file.path }"
+          replace
+        >
+          <div
+            class="p-3 opacity-75 bg-dark-500 border-1 border-dark-500 hover:border-dark-100 rounded-full aspect-square"
+          >
+            &gt;
+          </div>
+        </RouterLink>
+      </div>
+    </div>
+  </div>
+</template>

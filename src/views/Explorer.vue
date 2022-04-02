@@ -1,62 +1,101 @@
-<template>
-  <component
-    v-bind:directories="directories"
-    v-bind:files="files"
-    v-bind:is="view"
-  ></component>
-</template>
-<script>
+<script setup>
+import { computed, watch, ref } from "vue";
+import { useIndexStore } from "../stores";
 import Grid from "../components/Grid.vue";
 import Viewer from "../components/Viewer.vue";
-export default {
-  name: "Explorer",
-  components: {
-    Grid,
-    Viewer
-  },
-  computed: {
-    view() {
-      if (
-        this.$store.state.collections.files.items.findIndex((file) => {
-          return (
-            file.path.replaceAll("\\", "/") ===
-            decodeURI(this.$route.query.path)
-          );
-        }) >= 0
-      ) {
-        return "viewer";
-      }
-      return this.$store.state.view;
-    },
-    order() {
-      return this.$store.state.order;
-    },
-    directories() {
-      return this.$store.getters.getPathDirectories(this.$route.query.path);
-    },
-    files() {
-      return this.$store.getters.getPathFiles(this.$route.query.path);
-    }
-  },
-  watch: {
-    $route: "tryLoad"
-  },
-  methods: {
-    tryLoad() {
-      if (
-        this.$store.getters.getPathDirectories(this.$route.query.path).length <=
-          0 &&
-        this.$store.getters.getPathFiles(this.$route.query.path).length <= 0 &&
-        this.$route.fullPath !== "/settings"
-      ) {
-        if (this.view !== "viewer") {
-          this.$store.dispatch("remotePath", this.$route.query.path);
-        }
-      }
-    }
-  },
-  mounted() {
-    this.tryLoad();
+import { useRoute } from "vue-router";
+import Paths from "../components/Paths.vue";
+
+const store = useIndexStore();
+const route = useRoute();
+
+const view = computed(() => {
+  return store.explorer.view;
+});
+
+const file = computed(() => {
+  return store.explorer.file;
+});
+
+const final = ref(false);
+const path = ref("");
+
+watch(route, preload, { immediate: true });
+
+function preload(lastFile = undefined) {
+  if (lastFile) {
+    lastFile = lastFile.parent ? lastFile : undefined;
   }
-};
+  const qp = route.query.path || "/";
+  if (qp !== path.value) {
+    path.value = qp;
+    final.value = false;
+  }
+  const typePath = /^.*\.(jpg|jpeg|webp|png|bmp|mkv|webm|mp4)$/.test(
+    route.query.path || "/"
+  )
+    ? "file"
+    : "directory";
+  if (typePath === "directory") {
+    store.explorer.file = undefined;
+    if (final.value) {
+      return;
+    }
+    store.addActivity("Loading local directory.");
+    // always load cache as "skeleton"
+    store
+      .getContent(route.query.path || "/", lastFile, true)
+      .then((content) => {
+        store.removeActivity("Loading local directory.");
+        return content;
+      })
+      .catch((error) => {
+        store.removeActivity("Loading local directory.");
+        store.addActivity(error);
+      });
+    store.addActivity("Loading remote directory.");
+    // always get remote path even if "skeleton" is empty
+    store
+      .getContent(route.query.path || "/", lastFile)
+      .then((content) => {
+        store.removeActivity("Loading remote directory.");
+        if (content.directories.length === 0) {
+          if (content.files.length === 0) {
+            final.value = true;
+          } else if (
+            !(
+              /^.*image.*$/.test(content.files[0].mimetype) ||
+              /^.*video.*$/.test(content.files[0].mimetype)
+            ) &&
+            content.directories.length === 0
+          ) {
+            final.value = true;
+          }
+        }
+        return content;
+      })
+      .catch((error) => {
+        store.removeActivity("Loading remote directory.");
+        store.addActivity(error);
+      });
+  } else if (typePath === "file") {
+    store.addActivity("Loading file.");
+    store
+      .getCurrent(route.query.path || "/")
+      .then((file) => {
+        store.removeActivity("Loading file.");
+        return file;
+      })
+      .catch((error) => {
+        store.removeActivity("Loading file.");
+        store.addActivity(error);
+      });
+  }
+}
 </script>
+
+<template>
+  <Paths></Paths>
+  <Grid v-if="view === 'grid'" @last-is-loaded="preload"></Grid>
+  <Viewer v-if="file"></Viewer>
+</template>
