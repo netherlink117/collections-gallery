@@ -1,5 +1,5 @@
 <?php
-header('Access-Control-Allow-Origin: *');
+// header('Access-Control-Allow-Origin: *');
 $is_collections_container = true;
 $is_ffmpeg_installed = true;
 $pathSeparator = PHP_OS_FAMILY === 'Windows' ? '\\' : '/';
