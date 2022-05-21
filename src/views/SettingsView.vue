@@ -1,16 +1,16 @@
-<script setup>
+<script setup lang="ts">
 import { useIndexStore } from "../stores";
 import { ref } from "vue";
 
-const store = useIndexStore();
-const endpoint = ref(window.location.origin);
+const indexStore = useIndexStore();
+const endpoint = ref(indexStore.endpoint);
 function setEndpoint() {
-  store.setEndpoint(endpoint.value);
+  indexStore.setEndpoint(endpoint.value);
 }
 </script>
 
 <template>
-  <div class="md:container mx-auto mt-3  border-1 border-dark-500 rounded-md">
+  <div class="md:container mx-auto mt-3 bg-dark-700 rounded-4xl text-white">
     <div class="p-3">
       <h1 class="font-bold text-center">Settings</h1>
     </div>
@@ -20,14 +20,14 @@ function setEndpoint() {
         type="text"
         placeholder="Enter endpoint address here..."
         v-model="endpoint"
-        class="bg-dark-900 outline-none w-full mt-1 border-b-1 border-b-dark-300 focus:border-b-lime-500"
+        class="p-3 bg-transparent outline-none w-full mt-1 border-b-1 border-b-dark-300 focus:border-b-emerald-500"
       />
     </div>
     <div class="p-3">
       <label class="w-full">Alert sound:</label>
       <div class="w-full flex items-center mt-1">
         <div class="text-center">
-          <input type="radio" name="audio" id="on" checked="checked" />
+          <input type="radio" name="audio" id="on" checked />
           <label for="on" class="p-1">On</label>
         </div>
         <div class="text-center">
@@ -44,7 +44,7 @@ function setEndpoint() {
     </div>
     <div class="text-center p-3">
       <button
-        class="inline-flex py-2 px-3 mx-3 rounded-3xl border-1px border-dark-300 hover:border-dark-100 shadow"
+        class="w-100px p-3 bg-emerald-500 hover:bg-emerald-700 rounded-4xl shadow text-center"
         v-on:click="setEndpoint()"
       >
         Save

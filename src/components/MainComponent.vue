@@ -1,7 +1,7 @@
-<script setup></script>
+<script setup lang="ts"></script>
 
 <template>
-  <main>
+  <main class="flex-1">
     <router-view></router-view>
   </main>
 </template>
