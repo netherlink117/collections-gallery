@@ -21,6 +21,9 @@ if (isset($_GET['path'])) {
     }
     $paths = scandir($rootPath.$dir);
     sort($paths);
+    if (stripos($_GET['path'], "instagram") !== false) {
+      array_reverse($path);
+    }
     $array_path = explode($pathSeparator, $dir);
     $name = end($array_path);
     $directory = [
