@@ -19,13 +19,13 @@ const routes: RouteRecordRaw[] = [
     path: "/explore",
     name: "Explorer",
     component: () => import("@/views/ExplorerView.vue"),
-    props: route => ({ directory: route.query.directory || "/" }),
+    props: (route) => ({ directory: route.query.directory || "/" })
   },
   {
     path: "/view",
     name: "Viewer",
     component: () => import("@/views/ViewerView.vue"),
-    props: route => ({ file: route.query.file || "/" }),
+    props: (route) => ({ file: route.query.file || "/" })
   }
 ];
 
@@ -35,9 +35,9 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.path === "/") next({ name: "Explorer", query: { directory: "/" } })
+  if (to.path === "/") next({ name: "Explorer", query: { directory: "/" } });
   // if (to.path === "/view") next({ name: "Explorer", query: { directory: "/" } })
-  else next()
-})
+  else next();
+});
 
 export default router;

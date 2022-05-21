@@ -6,14 +6,17 @@ export class Directory {
   path: string;
   parent: string;
   type: string;
-  content: { directories: Directory[], files: File[] };
+  content: { directories: Directory[]; files: File[] };
   readonly http: Axios = axios.create();
   constructor(
     name = "root",
     path = "/",
     parent = "",
     type = "directory",
-    content: { directories: Directory[], files: File[] } = { directories: [], files: [] }
+    content: { directories: Directory[]; files: File[] } = {
+      directories: [],
+      files: []
+    }
   ) {
     this.name = name;
     this.path = path;
@@ -21,7 +24,10 @@ export class Directory {
     this.type = type;
     this.content = content;
   }
-  getContentFromBackend(endpoint: string, lastFile?: File): Promise<{ directories: Directory[], files: File[] }> {
+  getContentFromBackend(
+    endpoint: string,
+    lastFile?: File
+  ): Promise<{ directories: Directory[]; files: File[] }> {
     return new Promise((resolve, reject) => {
       let lastFileName = undefined;
       if (lastFile) {
@@ -76,19 +82,19 @@ export class Directory {
           .transaction("directories")
           .objectStore("directories")
           .getAll().onsuccess = (event) => {
-            const rawDirectories = (<IDBRequest>event.target).result;
-            const directories: Directory[] = [];
-            for (const directory of rawDirectories) {
-              const d = new Directory();
-              d.name = directory.name;
-              d.path = directory.path;
-              d.parent = directory.parent;
-              d.type = directory.type;
-              // filter here
-              directories.push(d);
-            }
-            resolve(directories);
-          };
+          const rawDirectories = (<IDBRequest>event.target).result;
+          const directories: Directory[] = [];
+          for (const directory of rawDirectories) {
+            const d = new Directory();
+            d.name = directory.name;
+            d.path = directory.path;
+            d.parent = directory.parent;
+            d.type = directory.type;
+            // filter here
+            directories.push(d);
+          }
+          resolve(directories);
+        };
       } catch (e) {
         reject(e);
       }

@@ -1,6 +1,5 @@
 import { defineStore } from "pinia";
 import { Directory } from "@/classes/Directory";
-import type { File } from "@/classes/File";
 
 export const useIndexStore = defineStore({
   id: "index",
@@ -88,7 +87,7 @@ export const useIndexStore = defineStore({
     setEndpoint(address: string) {
       this.endpoint = address;
       localStorage.setItem("endpoint", this.endpoint);
-    },
+    }
   }
 });
 

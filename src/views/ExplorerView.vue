@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import GridComponent from '@/components/GridComponent.vue';
-import { Directory } from '@/classes/Directory';
-import { useIndexStore } from '@/stores';
+import GridComponent from "@/components/GridComponent.vue";
+import { Directory } from "@/classes/Directory";
+import { useIndexStore } from "@/stores";
 
 const indexStore = useIndexStore();
 const props = defineProps({
