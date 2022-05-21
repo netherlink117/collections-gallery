@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { defineProps } from "vue";
 import { Directory } from "@/classes/Directory";
 import type { File } from "@/classes/File";
 import { useIndexStore } from "@/stores";

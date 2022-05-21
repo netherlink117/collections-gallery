@@ -72,7 +72,9 @@ export const useIndexStore = defineStore({
     },
     // gets content object and is call when route path changes
     getContent(directory: Directory, cache = false) {
-      this.current = directory;
+      if (this.current !== directory) {
+        this.current = directory
+      }
       // get remote first if online
       if (navigator.onLine && !cache) {
         this.current.getContentFromBackend(this.endpoint);

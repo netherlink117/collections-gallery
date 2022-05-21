@@ -25,21 +25,22 @@ export class Directory {
     this.content = content;
   }
   getContentFromBackend(
-    endpoint: string,
-    lastFile?: File
+    endpoint: string
   ): Promise<{ directories: Directory[]; files: File[] }> {
     return new Promise((resolve, reject) => {
-      let lastFileName = undefined;
-      if (lastFile) {
-        lastFileName = lastFile.path.split("/");
-        lastFileName = lastFileName[lastFileName.length - 1];
+      let lastFile: File | undefined = undefined;
+      let index: number | undefined = this.content.files.length;
+      index = index > 0 ? index - 1 : undefined;
+      if(index) {
+        lastFile = this.content.files[index];
       }
+      // let lastFile = this.content.files[]
       // get remote first if online
       this.http
         .get(endpoint, {
           params: {
             path: this.path || "/",
-            last: lastFileName
+            last: lastFile?.name
           }
         })
         .then((response) => {
