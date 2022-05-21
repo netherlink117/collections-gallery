@@ -31,7 +31,7 @@ export class Directory {
       let lastFile: File | undefined = undefined;
       let index: number | undefined = this.content.files.length;
       index = index > 0 ? index - 1 : undefined;
-      if(index) {
+      if (index) {
         lastFile = this.content.files[index];
       }
       // let lastFile = this.content.files[]

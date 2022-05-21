@@ -25,14 +25,16 @@ function getDirectoryFromProps(): Directory {
 }
 
 function loadMore(): void {
-indexStore.getContent(indexStore.current);
+  indexStore.getContent(indexStore.current);
 }
 </script>
 
 <template>
   <GridComponent :directory="getDirectoryFromProps()"></GridComponent>
-  <button class="fixed bottom-7 right-7 mr-7 w-100px p-3 bg-emerald-500 hover:bg-emerald-700 rounded-4xl shadow text-center"
-    v-on:click="loadMore()">
+  <button
+    class="fixed bottom-7 right-7 mr-7 w-100px p-3 bg-emerald-500 hover:bg-emerald-700 rounded-4xl shadow text-center"
+    v-on:click="loadMore()"
+  >
     Load more
   </button>
 </template>
