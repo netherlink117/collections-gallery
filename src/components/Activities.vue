@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue";
 import { useIndexStore } from "../stores/index";
 // import asuccess from "@/assets/377017_1172853-lq.mp3";

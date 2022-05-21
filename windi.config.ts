@@ -1,4 +1,7 @@
-export default {
+import { defineConfig } from "vite-plugin-windicss";
+
+export default defineConfig({
+  darkMode: "media",
   theme: {
     backgroundSize: {
       auto: "auto",
@@ -17,4 +20,4 @@ export default {
     require("windicss/plugin/aspect-ratio"),
     require("windicss/plugin/scroll-snap")
   ]
-};
+});
