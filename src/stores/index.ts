@@ -7,10 +7,12 @@ export const useIndexStore = defineStore({
     db?: IDBDatabase;
     endpoint: string;
     current: Directory;
+    status: "busy" | "free"
   } => ({
     db: undefined,
     endpoint: localStorage.getItem("endpoint") || window.location.origin,
-    current: new Directory()
+    current: new Directory(),
+    status: "free"
   }),
   actions: {
     // starts IndexedDB and is call when App launches
@@ -72,15 +74,17 @@ export const useIndexStore = defineStore({
     },
     // gets content object and is call when route path changes
     getContent(directory: Directory, cache = false) {
-      if (this.current !== directory) {
+      if (this.current.path !== directory.path) {
         this.current = directory;
       }
       // get remote first if online
       if (navigator.onLine && !cache) {
-        this.current.getContentFromBackend(this.endpoint);
+        this.status = "busy";
+        this.current.getContentFromBackend(this.endpoint).then((res) => { console.log(res); this.status = "free" }).catch((err) => console.error(err));
       } else {
         if (this.db) {
-          this.current.getContentFromIDBDatabase(this.db);
+          this.status = "busy";
+          this.current.getContentFromIDBDatabase(this.db).then((res) => { console.log(res); this.status = "free" }).catch((err) => console.error(err));
         } else {
           console.log("Database not ready...");
         }
