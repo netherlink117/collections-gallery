@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import GridComponent from "@/components/GridComponent.vue";
+import LoaderComponent from "@/components/LoaderComponent.vue";
 import { Directory } from "@/classes/Directory";
 import { useIndexStore } from "@/stores";
 import { computed } from "vue";
@@ -36,4 +37,5 @@ function loadMore(): void {
     v-on:click="loadMore">
     Load more
   </button>
+  <LoaderComponent v-if="indexStore.status === 'busy'"></LoaderComponent>
 </template>
