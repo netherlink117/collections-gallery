@@ -50,7 +50,8 @@ if (isset($_GET['path'])) {
           array_push($directory['content']['directories'], $subdirectory);
         } else {
           $filesize = filesize($rootPath.($dir === $pathSeparator ? '' : $dir).$pathSeparator.$path);
-          $mimetype = mime_content_type($rootPath.($dir === $pathSeparator ? '' : $dir).$pathSeparator.$path);
+          // getting mime type is very slow so just skip this
+          $mimetype = null;// mime_content_type($rootPath.($dir === $pathSeparator ? '' : $dir).$pathSeparator.$path);
           $file = [
             'parent' => $directory['path'],
             'path' => ($dir === $pathSeparator ? '' : $dir).$pathSeparator.$path,
