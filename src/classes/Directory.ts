@@ -51,7 +51,9 @@ export class Directory {
             d.path = directory.path;
             d.parent = directory.parent;
             d.type = directory.type;
-            const found = this.content.directories.find(i => (i.path === d.path));
+            const found = this.content.directories.find(
+              (i) => i.path === d.path
+            );
             if (!found) this.content.directories.push(d);
           }
           for (const file of response.data.content.files) {
@@ -66,7 +68,7 @@ export class Directory {
               f.type = file.type;
               f.mimetype = file.mimetype;
               f.size = file.size;
-              const found = this.content.files.find(i => (i.path === f.path));
+              const found = this.content.files.find((i) => i.path === f.path);
               if (!found) this.content.files.push(f);
             }
           }
@@ -85,19 +87,19 @@ export class Directory {
           .transaction("directories")
           .objectStore("directories")
           .getAll().onsuccess = (event) => {
-            const rawDirectories = (<IDBRequest>event.target).result;
-            const directories: Directory[] = [];
-            for (const directory of rawDirectories) {
-              const d = new Directory();
-              d.name = directory.name;
-              d.path = directory.path;
-              d.parent = directory.parent;
-              d.type = directory.type;
-              // filter here
-              directories.push(d);
-            }
-            resolve(directories);
-          };
+          const rawDirectories = (<IDBRequest>event.target).result;
+          const directories: Directory[] = [];
+          for (const directory of rawDirectories) {
+            const d = new Directory();
+            d.name = directory.name;
+            d.path = directory.path;
+            d.parent = directory.parent;
+            d.type = directory.type;
+            // filter here
+            directories.push(d);
+          }
+          resolve(directories);
+        };
       } catch (e) {
         reject(e);
       }

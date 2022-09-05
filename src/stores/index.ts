@@ -7,7 +7,7 @@ export const useIndexStore = defineStore({
     db?: IDBDatabase;
     endpoint: string;
     current: Directory;
-    status: "busy" | "free"
+    status: "busy" | "free";
   } => ({
     db: undefined,
     endpoint: localStorage.getItem("endpoint") || window.location.origin,
@@ -80,11 +80,23 @@ export const useIndexStore = defineStore({
       // get remote first if online
       if (navigator.onLine && !cache) {
         this.status = "busy";
-        this.current.getContentFromBackend(this.endpoint).then((res) => { console.log(res); this.status = "free" }).catch((err) => console.error(err));
+        this.current
+          .getContentFromBackend(this.endpoint)
+          .then((res) => {
+            console.log(res);
+            this.status = "free";
+          })
+          .catch((err) => console.error(err));
       } else {
         if (this.db) {
           this.status = "busy";
-          this.current.getContentFromIDBDatabase(this.db).then((res) => { console.log(res); this.status = "free" }).catch((err) => console.error(err));
+          this.current
+            .getContentFromIDBDatabase(this.db)
+            .then((res) => {
+              console.log(res);
+              this.status = "free";
+            })
+            .catch((err) => console.error(err));
         } else {
           console.log("Database not ready...");
         }
