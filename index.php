@@ -52,6 +52,15 @@ if (isset($_GET['path'])) {
           $filesize = filesize($rootPath.($dir === $pathSeparator ? '' : $dir).$pathSeparator.$path);
           // getting mime type is very slow so just skip this
           $mimetype = null;// mime_content_type($rootPath.($dir === $pathSeparator ? '' : $dir).$pathSeparator.$path);
+          // using this workaround while this is being fixed
+          $imgm = preg_match('/\.(jpeg|jpg|png|gif|bmp|heic)$/i', $path, $gmi);
+          $vigm = preg_match('/\.(mp4|mkv|webm|ts|hevc)$/i', $path, $gmv);
+          if ($imgm) {
+            $mimetype = 'image/'.$gmi[1];
+          }
+          if ($vigm) {
+            $mimetype = 'video/'.$gmv[1];
+          }
           $file = [
             'parent' => $directory['path'],
             'path' => ($dir === $pathSeparator ? '' : $dir).$pathSeparator.$path,
