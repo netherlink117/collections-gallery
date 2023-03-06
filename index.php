@@ -54,8 +54,8 @@ if (isset($_GET['path'])) {
         } else {
           $file['metadata'] = null;
         }
-        echo json_encode($file);
       }
+      echo json_encode($file);
     }
   } else { // return list of items in json [{path, phash, name, type, size}]
     // try to sanitize needle
