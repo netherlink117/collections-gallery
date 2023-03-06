@@ -2,129 +2,107 @@
 header('Access-Control-Allow-Origin: *');
 $is_collections_container = true;
 $is_ffmpeg_installed = true;
-$pathSeparator = PHP_OS_FAMILY === 'Windows' ? '\\' : '/';
 $rootPath = dirname(__FILE__);
-$rootPath = explode($pathSeparator, $rootPath);
-array_pop($rootPath);
-array_pop($rootPath);
-$rootPath = join($pathSeparator, $rootPath);
+// $rootPath = 'change this to absolute root path where files are stored';
 if ($is_collections_container) {
   $rootPath = "/collections";
 }
+// ?path=/example&find=something&items=20&last=1
 if (isset($_GET['path'])) {
-  try {
-    $dir = str_replace('\\', $pathSeparator, $_GET['path']);
-    $dir = str_replace('/', $pathSeparator, $dir);
-    if (!is_dir($rootPath.($dir === $pathSeparator ? '' : $dir)) || strpos($_GET['path'], $pathSeparator.'..') !== false){
-      http_response_code(404);
-      throw new Exception('Path not exists');
-    }
-    $paths = scandir($rootPath.$dir);
-    sort($paths);
-    if (stripos($_GET['path'], "instagram") !== false) {
-      array_reverse($path);
-    }
-    $array_path = explode($pathSeparator, $dir);
-    $name = end($array_path);
-    $directory = [
-      'path' => $dir,
-      'name' => $name,
-      'type' => 'directory',
-      'parent' => 'none',
-      'content' => [
-        'directories' => array(),
-        'files' => array(),
-      ]
-    ];
-    $counter = 0;
-    $push = !isset($_GET['last']);
-    foreach ($paths as &$path) {
-      if ($path != '.' && $path != '..') {
-        if (is_dir($rootPath.($dir === $pathSeparator ? '' : $dir).$pathSeparator.$path)) {
-          $subdirectory = [
-            'parent' => $directory['path'],
-            'path' => ($dir === $pathSeparator ? '' : $dir).$pathSeparator.$path,
-            'name' => $path,
-            'type' => 'directory'
-          ];
-          array_push($directory['content']['directories'], $subdirectory);
+  $path = str_replace('"', '\"', $_GET['path']);
+  if (is_file($rootPath.$_GET['path'])) { // return details in json {path, phash, mimetype, metadata}
+    //retrieve metadatas
+    $file = array();
+    // get mimetype
+    $cmd = 'file --mime-type -b "'.$rootPath.$path.'"';
+    $descriptorspec = array(
+      1 => array('pipe', 'w')
+    );
+    $options = array(
+      'bypass_shell' => true
+    );
+    $proc = proc_open($cmd, $descriptorspec, $pipes, null, null, $options);
+    $pipe = stream_get_contents($pipes[1]); // get stout
+    fclose($pipes[1]);
+    proc_close($proc);
+    if ($pipe !== null && $pipe !== '' && $pipe !== false) {
+      $file['path'] = $_GET['path'];
+      $file['phash'] = md5($_GET['path']);
+      $file['mimetype'] = $pipe;
+      if (strpos($pipe, 'image') !== false) {
+        $file['metadata'] = null; // check later if can get metadata of pictures, by now set only null
+      } else if (strpos($pipe, 'video') !== false) {
+        $cmd = 'ffprobe -v error -show_entries format_tags -of json "'.$rootPath.$path.'"';
+        $proc = proc_open($cmd, $descriptorspec, $pipes, null, null, $options);
+        $pipe = stream_get_contents($pipes[1]);
+        fclose($pipes[1]);
+        proc_close($proc);
+        $meta = array();
+        if ($pipe !== null && $pipe !== '' && $pipe !== false) {
+          // $meta = implode(null, $output);
+          $meta = json_decode($pipe, true);
+          $meta = isset($meta['format']) ? $meta['format'] : [];
+          $meta = isset($meta['tags']) ? $meta['tags'] : [];
+          $metadata = array();
+          // regularize, so javascript can handle it better
+          foreach ($meta as $key => $value) {
+            $metadata[strtolower($key)] = $value;
+          };
+          // clean, this is optional, but reduces network traffic and memory 
+          unset($metadata['compatible_brands'], $metadata['major_brand'], $metadata['minor_version'], $metadata['encoder']);
+          $file['metadata'] = $metadata;
         } else {
-          $filesize = filesize($rootPath.($dir === $pathSeparator ? '' : $dir).$pathSeparator.$path);
-          // getting mime type is very slow so just skip this
-          $mimetype = null;// mime_content_type($rootPath.($dir === $pathSeparator ? '' : $dir).$pathSeparator.$path);
-          // using this workaround while this is being fixed
-          $imgm = preg_match('/\.(jpeg|jpg|png|gif|bmp|heic)$/i', $path, $gmi);
-          $vigm = preg_match('/\.(mp4|mkv|webm|ts|hevc)$/i', $path, $gmv);
-          if ($imgm) {
-            $mimetype = 'image/'.$gmi[1];
-          }
-          if ($vigm) {
-            $mimetype = 'video/'.$gmv[1];
-          }
-          $file = [
-            'parent' => $directory['path'],
-            'path' => ($dir === $pathSeparator ? '' : $dir).$pathSeparator.$path,
-            'name' => $path,
-            'type' => 'file',
-            'size' => $filesize,
-            'mimetype' => $mimetype
-          ];
-          if($is_ffmpeg_installed && isset($_GET['metadata'])) {
-            $cmd = 'ffprobe -v error -show_entries format_tags -of json "'.$rootPath.($dir === $pathSeparator ? '' : $dir).$pathSeparator.$path.'"';
-            $descriptorspec = array(
-              1 => array('pipe', 'w')
-            );
-            $options = array(
-              'bypass_shell' => true
-            );
-            if(str_contains($mimetype, 'image')) {
-              $file['metadata'] = null;
-            } else if(str_contains($mimetype, 'video')) {
-              $proc = proc_open($cmd, $descriptorspec, $pipes, $rootPath.$dir, null, $options);
-              $pipe = stream_get_contents($pipes[1]);
-              fclose($pipes[1]);
-              proc_close($proc);
-              $meta = array();
-              if($pipe !== null && $pipe !== '' && $pipe !== false) {
-                // $meta = implode(null, $output);
-                $meta = json_decode($pipe, true);
-                $meta = isset($meta['format']) ? $meta['format'] : [];
-                $meta = isset($meta['tags']) ? $meta['tags'] : [];
-                $metadata = array();
-                // regularize, so javascript can handle it better
-                foreach($meta as $key => $value) {
-                  $metadata[strtolower($key)] = $value;
-                };
-                // clean, this is optional, reduces network traffic
-                unset($metadata['compatible_brands'], $metadata['major_brand'], $metadata['minor_version'], $metadata['encoder']);
-                $file['metadata'] = $metadata;
-              } else {
-                $file['metadata'] = null;
-              }
+          $file['metadata'] = null;
+        }
+        echo json_encode($file);
+      }
+    }
+  } else { // return list of items in json [{path, phash, name, type, size}]
+    // try to sanitize needle
+    $_GET['find'] = str_replace('"', '\"', $_GET['find']);
+    // find directory/folder
+    $cmd = null;
+    if (isset($_GET['find'])) {
+      $cmd = 'find "'.$rootPath.$path.'" -iname "*'.$_GET['find'].'*" -printf "%y%s %p\n"';
+    } else {
+      $cmd = 'find "'.$rootPath.$path.'" -maxdepth 1 -mindepth 1 -printf "%y%s %p\n"';
+    }
+    $descriptorspec = array(
+      1 => array('pipe', 'w')
+    );
+    $options = array(
+      'bypass_shell' => true
+    );
+    $proc = proc_open($cmd, $descriptorspec, $pipes, null, null, $options);
+    $pipe = stream_get_contents($pipes[1]); // get stout
+    fclose($pipes[1]);
+    proc_close($proc);;
+    $pipe = explode("\n", $pipe);
+    $items = array();
+    $push = !isset($_GET['last']);
+    foreach ($pipe as &$item) {
+      preg_match('/^(d|f)(\d+) (.+)$/', $item, $match);
+      if (count($match) === 4) {
+        $item = array();
+        $item['path'] = $match[3];
+        $item['phash'] = md5($match[3]);
+        $item['name'] = basename($match[3]);
+        $item['type'] = $match[1] === 'f' ? 'file' : 'directory';
+        $item['size'] = $match[2];
+        if ($push) {
+          if (isset($_GET['items'])) {
+            if (count($items) < $_GET['items']) {
+              array_push($items, $item);
             }
-          }
-          if($counter >= 21) {
-            continue;
           } else {
-            if((isset($_GET['last']) ? $_GET['last'] : null) === $file['name'] || $push) {
-              if($push) {
-                array_push($directory['content']['files'], $file);
-                $counter++;
-              }
-              $push = true;
-            }
-            // else {
-              // $push = false; this wont change for now
-            // }
+            array_push($items, $item);
           }
+        } else {
+          $push = $_GET['last'] === $match[3];
         }
       }
     }
-    echo json_encode($directory);
-  } catch (Exception $e) {
-    echo json_encode([
-      'message' => $e->getMessage()
-    ]);
+    echo json_encode($items);
   }
 } else {
   echo file_get_contents("./dist/index.html");
