@@ -59,7 +59,7 @@ if (isset($_GET['path'])) {
     }
   } else { // return list of items in json [{path, phash, name, type, size}]
     // try to sanitize needle
-    if (isse($_GET['find'])) {
+    if (isset($_GET['find'])) {
       $_GET['find'] = str_replace('"', '\"', $_GET['find']);
     }
     // find directory/folder
@@ -86,9 +86,9 @@ if (isset($_GET['path'])) {
       preg_match('/^(d|f)(\d+) (.+)$/', $item, $match);
       if (count($match) === 4) {
         $item = array();
-        $item['path'] = $match[3];
-        $item['phash'] = md5($match[3]);
-        $item['name'] = basename($match[3]);
+        $item['path'] = str_replace($rootPath, '', $match[3]);
+        $item['phash'] = md5($item['path']);
+        $item['name'] = basename($item['path']);
         $item['type'] = $match[1] === 'f' ? 'file' : 'directory';
         $item['size'] = $match[2];
         if ($push) {
@@ -100,7 +100,7 @@ if (isset($_GET['path'])) {
             array_push($items, $item);
           }
         } else {
-          $push = $_GET['last'] === $match[3];
+          $push = $_GET['last'] === $item['path'];
         }
       }
     }
