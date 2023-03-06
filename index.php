@@ -59,7 +59,9 @@ if (isset($_GET['path'])) {
     }
   } else { // return list of items in json [{path, phash, name, type, size}]
     // try to sanitize needle
-    $_GET['find'] = str_replace('"', '\"', $_GET['find']);
+    if (isse($_GET['find'])) {
+      $_GET['find'] = str_replace('"', '\"', $_GET['find']);
+    }
     // find directory/folder
     $cmd = null;
     if (isset($_GET['find'])) {
