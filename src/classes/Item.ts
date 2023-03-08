@@ -25,9 +25,9 @@ export class Item {
     this.name = name;
     this.type = type;
     this.size = size;
-    this.children = children;
-    this.mimetype = mimetype;
-    this.metadata = metadata;
+    this.children = children ? children : undefined;
+    this.mimetype = mimetype ? mimetype : undefined;
+    this.metadata = metadata ? metadata : undefined;
   }
   getChildrenFromBackend(endpoint: string): Promise<Item[] | undefined> {
     return new Promise((resolve, reject) => {
@@ -35,9 +35,7 @@ export class Item {
       let lastFile: Item | undefined = undefined;
       const index: number = this.children.length - 1;
       if (index >= 0) {
-        lastFile = this.children.find(
-          (ite: Item, ind: number) => ind === index
-        );
+        lastFile = this.children[index];
       }
       // let lastFile = this.content.files[]
       // get remote first if online
@@ -51,6 +49,7 @@ export class Item {
         })
         .then((response) => {
           // iterate directories and files then add them to both IDB and explorer
+          this.children = this.children === undefined ? [] : this.children;
           for (const item of response.data) {
             if (item.type === "directory") {
               const d = new Item(
@@ -61,8 +60,8 @@ export class Item {
                 item.size
               );
               // console.log(d);
-              const found = this.children?.find((i) => i.path === d.path);
-              if (found !== undefined) this.children?.push(d);
+              const found = this.children.find((i) => i.path === d.path);
+              if (found !== undefined) this.children.push(d);
               // console.log(found);
             }
           }
@@ -76,10 +75,10 @@ export class Item {
                 item.size
               );
               // console.log(f);
-              const found = this.children?.find((i) => i.path === f.path);
+              const found = this.children.find((i) => i.path === f.path);
               if (!found) {
                 f.getDetailsFromBackend(endpoint);
-                this.children?.push(f);
+                this.children.push(f);
               }
             }
           }
@@ -98,6 +97,7 @@ export class Item {
         db.transaction("items").objectStore("items").getAll().onsuccess = (
           event
         ) => {
+          this.children = this.children === undefined ? [] : this.children;
           const rawItems = (<IDBRequest>event.target).result;
           for (const item of rawItems) {
             if (item.type === "file") {
@@ -108,8 +108,8 @@ export class Item {
                 item.type,
                 item.size
               );
-              const found = this.children?.find((i) => i.path === f.path);
-              if (!found) this.children?.push(f);
+              const found = this.children.find((i) => i.path === f.path);
+              if (!found) this.children.push(f);
             }
           }
           resolve(this.children);
@@ -124,6 +124,7 @@ export class Item {
         db.transaction("items").objectStore("items").getAll().onsuccess = (
           event
         ) => {
+          this.children = this.children === undefined ? [] : this.children;
           const rawItems = (<IDBRequest>event.target).result;
           for (const item of rawItems) {
             if (item.type === "file") {
@@ -134,8 +135,8 @@ export class Item {
                 item.type,
                 item.size
               );
-              const found = this.children?.find((i) => i.path === f.path);
-              if (!found) this.children?.push(f);
+              const found = this.children.find((i) => i.path === f.path);
+              if (!found) this.children.push(f);
             }
           }
           resolve(this.children);

@@ -1,17 +1,19 @@
 import { defineStore } from "pinia";
-import { Directory } from "@/classes/Directory";
+import { Item } from "@/classes/Item";
 
 export const useIndexStore = defineStore({
   id: "index",
   state: (): {
     db?: IDBDatabase;
     endpoint: string;
-    current: Directory;
+    items: Item[];
+    current: Item;
     status: "busy" | "free";
   } => ({
     db: undefined,
     endpoint: localStorage.getItem("endpoint") || window.location.origin,
-    current: new Directory(),
+    items: [],
+    current: new Item(),
     status: "free"
   }),
   actions: {
@@ -37,27 +39,17 @@ export const useIndexStore = defineStore({
         // Triggered when update DB is changed on code
         request.onupgradeneeded = (ev: IDBVersionChangeEvent) => {
           this.db = (<IDBRequest>ev.target).result;
-          // Delete old directories object if exist
+          // Delete old items object if exist
           if (this.db) {
-            if (this.db.objectStoreNames.contains("directories")) {
-              this.db.deleteObjectStore("directories");
+            if (this.db.objectStoreNames.contains("items")) {
+              this.db.deleteObjectStore("items");
             }
-            // Create directories object
-            const directoriesStore = this.db?.createObjectStore("directories", {
+            // Create items object
+            const itemsStore = this.db?.createObjectStore("items", {
               keyPath: "path"
             });
-            // Create index on name from directories
-            directoriesStore.createIndex("name", "name", { unique: false });
-            // Delete old files object if exist
-            if (this.db.objectStoreNames.contains("files")) {
-              this.db.deleteObjectStore("files");
-            }
-            // Create files object
-            const filesStore = this.db.createObjectStore("files", {
-              keyPath: "path"
-            });
-            // Create index on name from files
-            filesStore.createIndex("name", "name", { unique: false });
+            // Create index on path from items
+            itemsStore.createIndex("path", "path", { unique: true });
           }
           resolve(this.db);
         };
@@ -73,15 +65,42 @@ export const useIndexStore = defineStore({
       });
     },
     // gets content object and is call when route path changes
-    getContent(directory: Directory, cache = false) {
-      if (this.current.path !== directory.path) {
-        this.current = directory;
-      }
+    // getChildren(item: Item, cache = false) {
+    //   if (this.current.path !== item.path) {
+    //     this.current = item;
+    //   }
+    //   // get remote first if online
+    //   if (navigator.onLine && !cache) {
+    //     this.status = "busy";
+    //     this.current
+    //       .getChildrenFromBackend(this.endpoint)
+    //       .then((res) => {
+    //         console.log(res);
+    //         this.status = "free";
+    //       })
+    //       .catch((err) => console.error(err));
+    //   } else {
+    //     if (this.db) {
+    //       this.status = "busy";
+    //       this.current
+    //         .getChildrenFromIDBDatabase(this.db)
+    //         .then((res) => {
+    //           console.log(res);
+    //           this.status = "free";
+    //         })
+    //         .catch((err) => console.error(err));
+    //     } else {
+    //       console.log("Database not ready...");
+    //       this.status = "free";
+    //     }
+    //   }
+    // },
+    getChildren(cache = false) {
       // get remote first if online
       if (navigator.onLine && !cache) {
         this.status = "busy";
         this.current
-          .getContentFromBackend(this.endpoint)
+          .getChildrenFromBackend(this.endpoint)
           .then((res) => {
             console.log(res);
             this.status = "free";
@@ -91,7 +110,7 @@ export const useIndexStore = defineStore({
         if (this.db) {
           this.status = "busy";
           this.current
-            .getContentFromIDBDatabase(this.db)
+            .getChildrenFromIDBDatabase(this.db)
             .then((res) => {
               console.log(res);
               this.status = "free";
@@ -99,6 +118,7 @@ export const useIndexStore = defineStore({
             .catch((err) => console.error(err));
         } else {
           console.log("Database not ready...");
+          this.status = "free";
         }
       }
     },
