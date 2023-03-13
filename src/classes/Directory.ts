@@ -1,144 +1,97 @@
 import { File } from "@/classes/File";
-import axios, { Axios } from "axios";
+import { Item } from "@/classes/Item";
 
-export class Directory {
-  name: string;
-  path: string;
-  parent: string;
-  type: string;
-  content: { directories: Directory[]; files: File[] };
-  readonly http: Axios = axios.create();
-  constructor(
-    name = "root",
-    path = "/",
-    parent = "",
-    type = "directory",
-    content: { directories: Directory[]; files: File[] } = {
-      directories: [],
-      files: []
-    }
-  ) {
-    this.name = name;
-    this.path = path;
-    this.parent = parent;
-    this.type = type;
-    this.content = content;
+export class Directory extends Item {
+  children: Item[];
+  last?: Item;
+  constructor() {
+    super(...arguments);
+    this.children = [];
   }
-  getContentFromBackend(
-    endpoint: string
-  ): Promise<{ directories: Directory[]; files: File[] }> {
+  static fromItem(item: Item) {
+    let d = new Directory();
+    d.path = item.path;
+    d.phash = item.phash;
+    d.name = item.name;
+    d.type = item.type;
+    d.size = item.size;
+    d.status = item.status;
+    return d;
+  }
+  getChildrenFromBackend(endpoint: string): Promise<Item[] | undefined> {
     return new Promise((resolve, reject) => {
-      let lastFile: File | undefined = undefined;
-      let index: number | undefined = this.content.files.length;
-      index = index > 0 ? index - 1 : undefined;
-      if (index) {
-        lastFile = this.content.files[index];
-      }
-      // let lastFile = this.content.files[]
+      this.status = "busy";
       // get remote first if online
       this.http
         .get(endpoint, {
           params: {
             path: this.path || "/",
-            last: lastFile?.name
+            items: 21,
+            last: this.last?.path
           }
         })
         .then((response) => {
+          // if (!Array.isArray(response.data))
+          //   reject(this.path + " is not a directory");
           // iterate directories and files then add them to both IDB and explorer
-          for (const directory of response.data.content.directories) {
-            const d = new Directory();
-            d.name = directory.name;
-            d.path = directory.path;
-            d.parent = directory.parent;
-            d.type = directory.type;
-            const found = this.content.directories.find(
-              (i) => i.path === d.path
+          this.children = this.children === undefined ? [] : this.children;
+          for (const item of response.data) {
+            const i = new Item(
+              item.path,
+              item.phash,
+              item.name,
+              item.type,
+              item.size
             );
-            if (!found) this.content.directories.push(d);
-          }
-          for (const file of response.data.content.files) {
-            if (
-              /^.*image.*$/.test(file.mimetype) ||
-              /^.*video.*$/.test(file.mimetype)
-            ) {
-              const f = new File();
-              f.name = file.name;
-              f.path = file.path;
-              f.parent = file.parent;
-              f.type = file.type;
-              f.mimetype = file.mimetype;
-              f.size = file.size;
-              const found = this.content.files.find((i) => i.path === f.path);
-              if (!found) this.content.files.push(f);
+            const found = this.children.find((ite) => ite.path === i.path);
+            if (found === undefined) {
+              this.last = i;
+              this.children.push(i);
             }
           }
-          // update path
-          resolve(this.content);
+          this.children = this.children.sort((a, b) =>
+            a.type < b.type ? 1 : -1
+          );
+          this.status = "free";
+          resolve(this.children);
         })
         .catch((error) => {
+          this.status = "free";
           reject(error);
         });
     });
   }
-  getContentFromIDBDatabase(db: IDBDatabase) {
-    const dp = new Promise<Directory[]>((resolve, reject) => {
+  getChildrenFromIDBDatabase(db: IDBDatabase) {
+    return new Promise<Item[] | undefined>((resolve, reject) => {
+      this.status = "busy";
       try {
-        db
-          .transaction("directories")
-          .objectStore("directories")
-          .getAll().onsuccess = (event) => {
-          const rawDirectories = (<IDBRequest>event.target).result;
-          const directories: Directory[] = [];
-          for (const directory of rawDirectories) {
-            const d = new Directory();
-            d.name = directory.name;
-            d.path = directory.path;
-            d.parent = directory.parent;
-            d.type = directory.type;
-            // filter here
-            directories.push(d);
-          }
-          resolve(directories);
-        };
-      } catch (e) {
-        reject(e);
-      }
-    });
-
-    const fp = new Promise<File[]>((resolve, reject) => {
-      try {
-        db.transaction("files").objectStore("files").getAll().onsuccess = (
+        db.transaction("items").objectStore("items").getAll().onsuccess = (
           event
         ) => {
-          const rawFiles = (<IDBRequest>event.target).result;
-          const files: File[] = [];
-          for (const file of rawFiles) {
-            const f = new File();
-            f.name = file.name;
-            f.path = file.path;
-            f.parent = file.parent;
-            f.type = file.type;
-            f.mimetype = file.mimetype;
-            f.size = file.size;
-            // filter here
-            files.push(f);
+          this.children = this.children === undefined ? [] : this.children;
+          const rawItems = (<IDBRequest>event.target).result;
+          // if (!Array.isArray(rawItems)) reject(this.path + " is not a directory")
+          for (const item of rawItems) {
+            const f = new Item(
+              item.path,
+              item.phash,
+              item.name,
+              item.type,
+              item.size
+            );
+            const found = this.children.find((i) => i.path === f.path);
+            if (!found) this.children.push(f);
           }
-          resolve(files);
+          this.children = this.children.sort((a, b) =>
+            a.type < b.type ? 1 : -1
+          );
+          this.status = "free";
+          resolve(this.children);
         };
       } catch (e) {
+        this.status = "free";
         reject(e);
       }
     });
-
-    // Promise.allSettled
-    return Promise.all([dp, fp])
-      .then((values) => {
-        console.table(values);
-        this.content.directories = values[0];
-        this.content.files = values[1];
-      })
-      .catch((errors) => {
-        console.table(errors);
-      });
   }
 }

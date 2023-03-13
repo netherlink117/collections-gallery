@@ -1,20 +1,32 @@
 import { defineStore } from "pinia";
-import { Item } from "@/classes/Item";
+import type { Item } from "@/classes/Item";
+import { Directory } from "@/classes/Directory";
+import type { File } from "@/classes/File";
 
 export const useIndexStore = defineStore({
   id: "index",
   state: (): {
     db?: IDBDatabase;
     endpoint: string;
-    items: Item[];
-    current: Item;
-    status: "busy" | "free";
+    items: Item[],
+    explorer: {
+      mode: "grid" | "list";
+      directory: Directory;
+    };
+    viewer: {
+      file: File | undefined;
+    }
   } => ({
     db: undefined,
     endpoint: localStorage.getItem("endpoint") || window.location.origin,
     items: [],
-    current: new Item(),
-    status: "free"
+    explorer: {
+      mode: "grid",
+      directory: new Directory()
+    },
+    viewer: {
+      file: undefined
+    }
   }),
   actions: {
     // starts IndexedDB and is call when App launches
@@ -95,32 +107,27 @@ export const useIndexStore = defineStore({
     //     }
     //   }
     // },
-    getChildren(cache = false) {
+    getChildrenFromDirectory(cache = false) {
       // get remote first if online
       if (navigator.onLine && !cache) {
-        this.status = "busy";
-        this.current
+        this.explorer.directory
           .getChildrenFromBackend(this.endpoint)
-          .then((res) => {
-            console.log(res);
-            this.status = "free";
-          })
           .catch((err) => console.error(err));
       } else {
         if (this.db) {
-          this.status = "busy";
-          this.current
+          this.explorer.directory
             .getChildrenFromIDBDatabase(this.db)
-            .then((res) => {
-              console.log(res);
-              this.status = "free";
-            })
             .catch((err) => console.error(err));
         } else {
           console.log("Database not ready...");
-          this.status = "free";
         }
       }
+    },
+    getDetailsFromFile() {
+      if (this.viewer.file === undefined) return null;
+      this.viewer.file
+        .getDetailsFromBackend(this.endpoint)
+        .catch((err) => console.error(err));
     },
     setEndpoint(address: string) {
       this.endpoint = address;
