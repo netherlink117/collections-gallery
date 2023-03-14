@@ -5,7 +5,9 @@ import {
 } from "vue-router";
 
 import { useIndexStore } from "@/stores";
-const indexStore = useIndexStore();
+import { Item } from "@/classes/Item";
+import { Directory } from "@/classes/Directory";
+import { File } from "@/classes/File";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -21,14 +23,14 @@ const routes: RouteRecordRaw[] = [
   {
     path: "/explore",
     name: "Explorer",
-    component: () => import("@/views/ExplorerView.vue"),
-    props: (route) => ({ path: route.query.path || "/" })
+    component: () => import("@/views/ExplorerView.vue")
+    // props: (route) => ({ path: route.query.path || "/" })
   },
   {
     path: "/view",
     name: "Viewer",
-    component: () => import("@/views/ViewerView.vue"),
-    props: (route) => ({ path: route.query.path || "/" })
+    component: () => import("@/views/ViewerView.vue")
+    // props: (route) => ({ path: route.query.path || "/" })
   }
 ];
 
@@ -38,19 +40,47 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.path === "/") next({ name: "Explorer", query: { path: "/" } });
-  if (to.query.path !== from.query.path) {
-    const item = indexStore.items.find((ite) => ite.path === to.path);
-    if (item !== undefined) {
-      indexStore.current = item;
+  console.log('to: ' + to.query.path)
+  console.log('from: ' + from.query.path)
+  const indexStore = useIndexStore();
+  if (to.path === '/' && (to.query.path === null || to.query.path === undefined || to.query.path === '')) {
+    return next({ path: "/explore", name: "Explorer", query: { path: "/" } });
+  }
+  if (to.query.path === indexStore.explorer.directory?.path ||to.query.path === indexStore.viewer.file?.path){
+    // finally go to the right path after all redirects
+    return next();
+  } else {
+    // get the logic for redirects
+    let itemType = /\.[a-z34]{0,4}$/.test(to.query.path as string)
+      ? "file"
+      : "directory";
+    console.log(itemType);
+    let item = indexStore.items.find((ite) => ite.path === to.query.path);
+    if (!item) {
+      item = new Item(to.query.path?.toString());
+    }
+    if (itemType === "file") {
+      indexStore.viewer.file = File.fromItem(item);
+      indexStore.getDetailsFromFile();
+      console.log('entra y manda a: ?path=' + to.query.path)
+      return next({
+        path: "/view",
+        name: "Viewer",
+        query: { path: to.query.path }
+      });
+    }
+    if (itemType === "directory") {
+      indexStore.explorer.directory = Directory.fromItem(item);
+      indexStore.getChildrenFromDirectory();
+      indexStore.viewer.file = undefined;
+      console.log('entra y manda a: ?path=' + to.query.path)
+      return next({
+        path: "/explore",
+        name: "Explorer",
+        query: { path: to.query.path }
+      });
     }
   }
-  //
-  // if (to.path === "/view") next({ name: "Explorer", query: { directory: "/" } })
-  else next();
 });
-
-// router.afterEach((to, from, failure) => {
-// });
 
 export default router;
