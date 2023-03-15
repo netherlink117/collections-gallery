@@ -10,22 +10,24 @@ import GridFileItemComponent from "@/components/GridFileItemComponent.vue";
 const indexStore = useIndexStore();
 
 const children = computed<Item[]>((): Item[] => {
-  return indexStore.explorer.directory.children ? indexStore.explorer.directory.children : [];
+  return indexStore.explorer.directory.children
+    ? indexStore.explorer.directory.children
+    : [];
 });
 const directories = computed<Directory[]>((): Directory[] => {
   const d: Directory[] = [];
-  children.value.forEach(element => {
-    if (element.type === 'directory') {
-      d.push(Directory.fromItem(element))
+  children.value.forEach((element) => {
+    if (element.type === "directory") {
+      d.push(Directory.fromItem(element));
     }
   });
   return d;
 });
 const files = computed<File[]>((): File[] => {
   const f: File[] = [];
-  children.value.forEach(element => {
-    if (element.type === 'file') {
-      f.push(File.fromItem(element))
+  children.value.forEach((element) => {
+    if (element.type === "file") {
+      f.push(File.fromItem(element));
     }
   });
   return f;
@@ -52,7 +54,10 @@ const files = computed<File[]>((): File[] => {
       v-bind:key="file.path + index"
       class="p-3 w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/5 xl:w-1/6 2xl:w-1/7 aspect-square"
     >
-      <GridFileItemComponent :file="file" @free="(f) => { }"></GridFileItemComponent>
+      <GridFileItemComponent
+        :file="file"
+        @free="(f) => {}"
+      ></GridFileItemComponent>
     </div>
   </div>
 </template>

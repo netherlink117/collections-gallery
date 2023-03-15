@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Item } from "@/classes/Item";
-const props = defineProps({
+defineProps({
   directory: {
     type: Item,
     required: true

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useIndexStore } from "@/stores";
-import { File } from '@/classes/File';
+import { File } from "@/classes/File";
 import { type Ref, ref } from "vue";
 // import { } from "vue";
 const props = defineProps({
@@ -10,9 +10,9 @@ const props = defineProps({
   }
 });
 
-const f: Ref<File> = ref(props.file)
+const f: Ref<File> = ref(props.file);
 const indexStore = useIndexStore();
-f.value.getDetailsFromBackend(indexStore.endpoint);//.then(() => emit('free', props.file));
+f.value.getDetailsFromBackend(indexStore.endpoint); //.then(() => emit('free', props.file));
 
 function toHumanSize(bytes: number) {
   const sz = ["B", "K", "M", "G", "T", "P"];
@@ -26,7 +26,6 @@ function getFileSrc(file: File) {
     return file.name;
   }
 }
-
 </script>
 <template>
   <router-link
@@ -35,7 +34,7 @@ function getFileSrc(file: File) {
       query: { path: f.path }
     }"
     class="block w-full h-full shadow hover:shadow-md overflow-hidden"
-    :class="{'animate-pulse':f.status === 'busy'}"
+    :class="{ 'animate-pulse': f.status === 'busy' }"
   >
     <div
       v-if="f.mimetype.includes('image')"
