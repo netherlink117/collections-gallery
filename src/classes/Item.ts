@@ -7,6 +7,9 @@ export class Item {
   type: string;
   size: number;
   status: string;
+  parent?: string;
+  previousItem?: Item;
+  nextItem?: Item;
   readonly http: Axios = axios.create();
   constructor(
     path = "",
@@ -14,7 +17,7 @@ export class Item {
     name = "",
     type = "",
     size = 0,
-    status = 'free'
+    status = "free"
   ) {
     this.path = path;
     this.phash = phash;
@@ -22,5 +25,9 @@ export class Item {
     this.type = type;
     this.size = size;
     this.status = status;
+  }
+  getParentPath(): string {
+    const matches = /(^.+)\/[^\/]+$/.exec(this.path);
+    return matches ? matches[1] : "/";
   }
 }

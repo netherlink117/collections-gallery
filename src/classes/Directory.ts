@@ -1,21 +1,22 @@
-import { File } from "@/classes/File";
 import { Item } from "@/classes/Item";
 
 export class Directory extends Item {
   children: Item[];
   last?: Item;
-  constructor() {
-    super(...arguments);
+  constructor(...props: undefined[]) {
+    super(...props);
     this.children = [];
   }
   static fromItem(item: Item) {
-    let d = new Directory();
+    const d = new Directory();
     d.path = item.path;
     d.phash = item.phash;
     d.name = item.name;
     d.type = item.type;
     d.size = item.size;
     d.status = item.status;
+    d.nextItem = item.nextItem;
+    d.previousItem = item.nextItem;
     return d;
   }
   getChildrenFromBackend(endpoint: string): Promise<Item[] | undefined> {
@@ -31,8 +32,8 @@ export class Directory extends Item {
           }
         })
         .then((response) => {
-          // if (!Array.isArray(response.data))
-          //   reject(this.path + " is not a directory");
+          if (!Array.isArray(response.data))
+            reject(this.path + " is not a directory");
           // iterate directories and files then add them to both IDB and explorer
           this.children = this.children === undefined ? [] : this.children;
           for (const item of response.data) {
@@ -45,6 +46,13 @@ export class Directory extends Item {
             );
             const found = this.children.find((ite) => ite.path === i.path);
             if (found === undefined) {
+              // set previous
+              i.previousItem = this.last ? this.last : undefined;
+              // set next
+              if (this.children.length > 0) {
+                this.children[this.children.length - 1].nextItem = i;
+              }
+              i.parent = this.path;
               this.last = i;
               this.children.push(i);
             }
