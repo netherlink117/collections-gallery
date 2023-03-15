@@ -8,14 +8,14 @@ export const useIndexStore = defineStore({
   state: (): {
     db?: IDBDatabase;
     endpoint: string;
-    items: Item[],
+    items: Item[];
     explorer: {
       mode: "grid" | "list";
       directory: Directory;
     };
     viewer: {
       file: File | undefined;
-    }
+    };
   } => ({
     db: undefined,
     endpoint: localStorage.getItem("endpoint") || window.location.origin,
@@ -112,11 +112,17 @@ export const useIndexStore = defineStore({
       if (navigator.onLine && !cache) {
         this.explorer.directory
           .getChildrenFromBackend(this.endpoint)
+          .then((ite) => {
+            this.items = this.items.concat(Array.isArray(ite) ? ite : []);
+          })
           .catch((err) => console.error(err));
       } else {
         if (this.db) {
           this.explorer.directory
             .getChildrenFromIDBDatabase(this.db)
+            .then((ite) => {
+              this.items = this.items.concat(Array.isArray(ite) ? ite : []);
+            })
             .catch((err) => console.error(err));
         } else {
           console.log("Database not ready...");
