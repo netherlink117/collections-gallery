@@ -82,6 +82,7 @@ if (isset($_GET['path'])) {
     $pipe = explode("\n", $pipe);
     $items = array();
     $push = !isset($_GET['last']);
+    $counter =0;
     foreach ($pipe as &$item) {
       preg_match('/^(d|f)(\d+) (.+)$/', $item, $match);
       if (count($match) === 4) {
@@ -91,9 +92,12 @@ if (isset($_GET['path'])) {
         $item['name'] = basename($item['path']);
         $item['type'] = $match[1] === 'f' ? 'file' : 'directory';
         $item['size'] = $match[2];
+        if ($item['type'] === 'file') {
+          $counter++
+        }
         if ($push) {
           if (isset($_GET['items'])) {
-            if (count($items) < $_GET['items']) {
+            if ($counter < $_GET['items']) {
               array_push($items, $item);
             }
           } else {
