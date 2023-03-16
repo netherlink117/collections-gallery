@@ -8,7 +8,9 @@ if ($is_collections_container) {
   $rootPath = "/collections";
 }
 // ?path=/example&find=something&items=20&last=1
+// $_GET['path'] = "/";
 if (isset($_GET['path'])) {
+  header("Content-Type: application/json", true);
   $path = str_replace('"', '\"', $_GET['path']);
   if (is_file($rootPath.$_GET['path'])) { // return details in json {path, phash, mimetype, metadata}
     //retrieve metadatas
@@ -80,9 +82,10 @@ if (isset($_GET['path'])) {
     fclose($pipes[1]);
     proc_close($proc);;
     $pipe = explode("\n", $pipe);
-    $items = array();
+    $directories = array();
+    $files = array();
     $push = !isset($_GET['last']);
-    $counter =0;
+    $counter = 0;
     foreach ($pipe as &$item) {
       preg_match('/^(d|f)(\d+) (.+)$/', $item, $match);
       if (count($match) === 4) {
@@ -92,22 +95,27 @@ if (isset($_GET['path'])) {
         $item['name'] = basename($item['path']);
         $item['type'] = $match[1] === 'f' ? 'file' : 'directory';
         $item['size'] = $match[2];
-        if ($item['type'] === 'file') {
-          $counter++
+        if ($item['type'] === 'directory') {
+          array_push($directories, $item);
         }
-        if ($push) {
-          if (isset($_GET['items'])) {
-            if ($counter < $_GET['items']) {
-              array_push($items, $item);
+        if ($item['type'] === 'file') {
+          if ($push) { 
+            if (isset($_GET['items'])) {
+              $counter++;
+              if ($counter < $_GET['items']) {
+                array_push($files, $item);
+              }
+            } else {
+              array_push($files, $item);
             }
           } else {
-            array_push($items, $item);
+            $push = $_GET['last'] === $item['path'];
           }
-        } else {
-          $push = $_GET['last'] === $item['path'];
         }
       }
     }
+    $items = array();
+    $items = array_merge($directories, $files);
     echo json_encode($items);
   }
 } else {
