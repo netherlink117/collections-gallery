@@ -67,9 +67,9 @@ if (isset($_GET['path'])) {
     // find directory/folder
     $cmd = null;
     if (isset($_GET['find'])) {
-      $cmd = 'find "'.$rootPath.$path.'" -iname "*'.$_GET['find'].'*" -printf "%y%s %p\n"';
+      $cmd = 'find "'.$rootPath.$path.'" -iname "*'.$_GET['find'].'*" -printf "%y%s %p\n" | sort -k 2';
     } else {
-      $cmd = 'find "'.$rootPath.$path.'" -maxdepth 1 -mindepth 1 -printf "%y%s %p\n"';
+      $cmd = 'find "'.$rootPath.$path.'" -maxdepth 1 -mindepth 1 -printf "%y%s %p\n" | sort -k 2';
     }
     $descriptorspec = array(
       1 => array('pipe', 'w')
@@ -86,6 +86,12 @@ if (isset($_GET['path'])) {
     $files = array();
     $push = !isset($_GET['last']);
     $counter = 0;
+    # show newer files first when date is on the name of the file, and path matches the cricteria (comment block to keep default sorting)
+    if ($path !== '/') {
+      if (preg_match('/\-[0-9a-zA-Z]+$/', $path) === 0) {
+        $pipe = array_reverse($pipe);
+      }
+    }
     foreach ($pipe as &$item) {
       preg_match('/^(d|f)(\d+) (.+)$/', $item, $match);
       if (count($match) === 4) {
