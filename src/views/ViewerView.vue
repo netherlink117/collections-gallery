@@ -17,11 +17,9 @@ function getFileSrc(file: File): string {
 
 onMounted(() => {
   window.addEventListener("keydown", navigation);
-  console.log("regitered");
 });
 onBeforeUnmount(() => {
   window.removeEventListener("keydown", navigation);
-  console.log("unregitered");
 });
 function navigation(event: KeyboardEvent) {
   console.log(event.key);
@@ -38,7 +36,7 @@ function navigation(event: KeyboardEvent) {
 function goBack() {
   router.replace({
     name: "Explorer",
-    query: { path: indexStore.viewer.file?.getParentPath() }
+    query: { path: indexStore.explorer.directory?.path }
   });
 }
 function goNext() {
@@ -92,7 +90,7 @@ function goPrevious() {
           muted
         ></video>
       </div>
-      <div
+      <!-- <div
         class="absolute opacity-7 hover:opacity-100 bottom-3 w-8/10 flex bg-emerald-500 p-3 rounded-full"
       >
         <div class="flex-1 px-3">
@@ -131,7 +129,7 @@ function goPrevious() {
         >
           Back
         </RouterLink>
-      </div>
+      </div> -->
     </div>
     <div
       v-else

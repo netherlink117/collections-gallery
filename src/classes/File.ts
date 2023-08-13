@@ -42,7 +42,7 @@ export class File extends Item {
   }
   getDetailsFromBackend(endpoint: string): Promise<Item | undefined> {
     return new Promise((resolve, reject) => {
-      console.log("Getting metadata for: " + this.path);
+      // console.log("Getting metadata for: " + this.path);
       this.status = "busy";
       this.http
         .get(endpoint, {

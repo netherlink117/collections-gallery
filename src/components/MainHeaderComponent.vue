@@ -20,7 +20,7 @@ const paths = computed(()=> {
 
 function select(e: Event) {
     for(let i = 0; i < paths.value.length; i++) {
-        if (paths.value[i] === e.target.value) {
+        if (paths.value[i] === (e.target as HTMLSelectElement).value) {
             router.go(-1 * i);
             break;
         }

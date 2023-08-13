@@ -36,6 +36,7 @@ export class Directory extends Item {
             reject(this.path + " is not a directory");
           // iterate directories and files then add them to both IDB and explorer
           this.children = this.children === undefined ? [] : this.children;
+          // TO DO: change to for (let i = this.children.length - 1; i < (this.children.length + reponse.data.length); i++)
           for (const item of response.data) {
             const i = new Item(
               item.path,

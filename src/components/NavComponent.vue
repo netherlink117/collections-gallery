@@ -6,19 +6,13 @@
   >
     <div class="flex w-1/2">
       <router-link
-        :to="{ name: 'Explorer', query: { path: '/' } }"
+        :to="{ name: 'Home' }"
         class="dark:text-light-500 text-dark-500 hover:text-emerald-500"
       >
         <h1 class="p-3 font-bold">CG</h1>
       </router-link>
     </div>
     <div class="flex w-1/2 justify-end">
-      <router-link
-        :to="{ name: 'Explorer', query: { path: '/' } }"
-        class="p-3 dark:text-light-500 text-dark-500 hover:text-emerald-500"
-      >
-        Home
-      </router-link>
       <router-link
         :to="{ name: 'Settings' }"
         class="p-3 dark:text-light-500 text-dark-500 hover:text-emerald-500"

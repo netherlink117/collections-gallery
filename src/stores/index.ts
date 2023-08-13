@@ -11,18 +11,18 @@ export const useIndexStore = defineStore({
     items: Item[];
     explorer: {
       mode: "grid" | "list";
-      directory: Directory;
+      directory: Directory | undefined;
     };
     viewer: {
       file: File | undefined;
     };
   } => ({
     db: undefined,
-    endpoint: localStorage.getItem("endpoint") || window.location.origin,
+    endpoint: localStorage.getItem("endpoint") || 'http://localhost',
     items: [],
     explorer: {
       mode: "grid",
-      directory: new Directory()
+      directory: undefined
     },
     viewer: {
       file: undefined
