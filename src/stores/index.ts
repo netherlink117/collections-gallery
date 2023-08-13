@@ -18,7 +18,7 @@ export const useIndexStore = defineStore({
     };
   } => ({
     db: undefined,
-    endpoint: localStorage.getItem("endpoint") || 'http://localhost',
+    endpoint: localStorage.getItem("endpoint") || "http://localhost",
     items: [],
     explorer: {
       mode: "grid",

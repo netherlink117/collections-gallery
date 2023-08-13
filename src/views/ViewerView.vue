@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { File } from "@/classes/File";
 import { onMounted, onBeforeUnmount } from "vue";
-import { useRouter, RouterLink } from "vue-router";
+import { useRouter } from "vue-router";
 import { useIndexStore } from "../stores";
 
 const indexStore = useIndexStore();

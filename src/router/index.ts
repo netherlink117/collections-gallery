@@ -46,8 +46,8 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const indexStore = useIndexStore();
-  if (to.path === '/explore' && to.query.path !== undefined) {
-    console.log('d')
+  if (to.path === "/explore" && to.query.path !== undefined) {
+    console.log("d");
     let item = indexStore.items.find((ite) => ite.path === to.query.path);
     if (!item) {
       item = new Item(to.query.path?.toString());
@@ -56,8 +56,8 @@ router.beforeEach((to, from, next) => {
     indexStore.getChildrenFromDirectory();
     indexStore.viewer.file = undefined;
   }
-  if (to.path === '/view' && to.query.path !== undefined) {
-    console.log('f')
+  if (to.path === "/view" && to.query.path !== undefined) {
+    console.log("f");
     let item = indexStore.items.find((ite) => ite.path === to.query.path);
     if (!item) {
       item = new Item(to.query.path?.toString());

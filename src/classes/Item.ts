@@ -27,7 +27,7 @@ export class Item {
     this.status = status;
   }
   getParentPath(): string {
-    const matches = /(^.+)\/[^\/]+$/.exec(this.path);
+    const matches = /(^.+)\/[^/]+$/.exec(this.path);
     return matches ? matches[1] : "/";
   }
 }
