@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import type { Item } from "@/classes/Item";
-import { Directory } from "@/classes/Directory";
+import type { Directory } from "@/classes/Directory";
 import type { File } from "@/classes/File";
 
 export const useIndexStore = defineStore({
@@ -111,7 +111,7 @@ export const useIndexStore = defineStore({
       // get remote first if online
       if (navigator.onLine && !cache) {
         this.explorer.directory
-          .getChildrenFromBackend(this.endpoint)
+          ?.getChildrenFromBackend(this.endpoint)
           .then((ite) => {
             this.items = this.items.concat(Array.isArray(ite) ? ite : []);
           })
@@ -119,7 +119,7 @@ export const useIndexStore = defineStore({
       } else {
         if (this.db) {
           this.explorer.directory
-            .getChildrenFromIDBDatabase(this.db)
+            ?.getChildrenFromIDBDatabase(this.db)
             .then((ite) => {
               this.items = this.items.concat(Array.isArray(ite) ? ite : []);
             })

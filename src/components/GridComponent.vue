@@ -10,8 +10,8 @@ import GridFileItemComponent from "@/components/GridFileItemComponent.vue";
 const indexStore = useIndexStore();
 
 const children = computed<Item[]>((): Item[] => {
-  return indexStore.explorer.directory.children
-    ? indexStore.explorer.directory.children
+  return indexStore.explorer.directory?.children
+    ? indexStore.explorer.directory?.children
     : [];
 });
 const directories = computed<Directory[]>((): Directory[] => {
